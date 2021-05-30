@@ -1,24 +1,34 @@
-package traverse
+package lang_ext
 
 var CommonLanguageExt = map[string]string{
-	".go":   "Golang",
-	".java": "Java",
-	".py":   "Python",
-	".lua":  "Lua",
-	".c":    "C",
-	".cpp":  "C++",
-	".js":   "JavaScript",
-	".ts":   "TypeScript",
-	".vue":  "Vue",
-	".json": "Json",
-	".yaml": "Yaml",
-	".ini":  "ini",
-	".md":   "Markdown",
-	".sh":   "Shell",
-	".html": "Html",
-	".pl":   "Perl",
-	".perl": "Perl",
-	".xml":  "XML",
+	".go":    "Golang",
+	".java":  "Java",
+	".py":    "Python",
+	".lua":   "Lua",
+	".c":     "C",
+	".cpp":   "C++",
+	".js":    "JavaScript",
+	".ts":    "TypeScript",
+	".vue":   "Vue",
+	".json":  "Json",
+	".yaml":  "Yaml",
+	".ini":   "ini",
+	".md":    "Markdown",
+	".sh":    "Shell",
+	".html":  "Html",
+	".pl":    "Perl",
+	".perl":  "Perl",
+	".xml":   "XML",
+	"Grpc":   "Grpc",
+	".proto": "Grpc",
+}
+
+var CommonLanguageReverseExt = make(map[string]string)
+
+func init() {
+	for k, v := range CommonLanguageExt {
+		CommonLanguageReverseExt[v] = k
+	}
 }
 
 var ExcludeLineCount = map[string]string{

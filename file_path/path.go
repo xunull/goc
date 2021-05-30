@@ -117,3 +117,13 @@ func TargetContains(p, sub string) bool {
 	pb := filepath.Base(p)
 	return strings.Contains(pb, sub)
 }
+
+func RemovePrefixN(target string, n int) string {
+	return strings.Join(strings.Split(target, "/")[n:], "/")
+}
+
+func RemoveSuffixN(target string, n int) string {
+	list := strings.Split(target, "/")
+	length := len(list)
+	return strings.Join(list[:length-n], "/")
+}

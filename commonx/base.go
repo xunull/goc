@@ -4,12 +4,13 @@ import (
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"syscall"
 )
 
 func CheckErrOrFatal(err error) {
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Msg("\n" + string(debug.Stack()))
 		os.Exit(1)
 	}
 }

@@ -9,13 +9,20 @@ import (
 )
 
 type RestyClient struct {
-	Client *resty.Client
+	Client       *resty.Client
+	urlParams    map[string]string
+	hasUrlParams bool
+}
+
+func (c *RestyClient) Init() {
+	c.urlParams = make(map[string]string)
 }
 
 func NewClient(ops ...RestyOption) *RestyClient {
 	client := &RestyClient{
 		Client: resty.New(),
 	}
+	client.Init()
 	op := getDefaultOption(ops...)
 
 	if op.AddTokenHeader {
@@ -41,8 +48,13 @@ func NewBearClient(token string) *RestyClient {
 	c := &RestyClient{
 		Client: resty.New(),
 	}
+	c.Init()
 	c.Client.SetHeader("Authorization", "Bear "+token)
 	return c
+}
+
+func (c *RestyClient) AddHeader(k, v string) {
+	c.Client.Header.Add(k, v)
 }
 
 func (c *RestyClient) SetProxy(proxy string) {
@@ -69,16 +81,9 @@ func (c *RestyClient) SetToken(token string) {
 	c.Client.SetHeader("Authorization", fmt.Sprintf("Token %s", token))
 }
 
-func (c *RestyClient) PostJson(data interface{}) *resty.Request {
-	return c.Client.R().SetHeader("Content-Type", "application/json").SetBody(data)
-}
-
-func (c *RestyClient) PostFormData(data map[string]string) *resty.Request {
-	return c.Client.R().SetFormData(data)
-}
-
-func (c *RestyClient) PostData(data interface{}) *resty.Request {
-	return c.Client.R().SetBody(data)
+func (c *RestyClient) SetUrlParam(key, value string) {
+	c.urlParams[key] = value
+	c.hasUrlParams = true
 }
 
 func (c *RestyClient) Ok(resp *resty.Response) bool {

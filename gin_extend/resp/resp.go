@@ -33,6 +33,10 @@ func FailData(c *gin.Context, data interface{}, message string) {
 	Resp(c, ERROR, data, message)
 }
 
+func FailError(c *gin.Context, err error) {
+	Resp(c, ERROR, map[string]interface{}{}, err.Error())
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 
 func Ok(c *gin.Context) {

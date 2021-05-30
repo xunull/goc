@@ -21,6 +21,8 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	github.com/tklauser/go-sysconf v0.3.5 // indirect
+	github.com/xunull/openurl v0.0.0-20210503032826-fc9aaaf2063d // indirect
+	go.etcd.io/bbolt v1.3.6 // indirect
 	go.uber.org/zap v1.10.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

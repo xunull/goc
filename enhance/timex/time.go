@@ -69,6 +69,14 @@ func GetYYYYMMDDTime(target string) (time.Time, error) {
 	return time.Parse("20060102", target)
 }
 
+func GetTimeByFormat(target, format string) (time.Time, error) {
+	return time.Parse(format, target)
+}
+
+func GetRFC3339Time(target string) (time.Time, error) {
+	return time.Parse(time.RFC3339, target)
+}
+
 func GetDay() string {
 	return time.Now().Format("20060102")
 }
@@ -76,4 +84,23 @@ func GetDay() string {
 func GetDayInt() (int, error) {
 	s := time.Now().Format("20060102")
 	return strconv.Atoi(s)
+}
+
+func GetDayIntOrPanic() int {
+	s := time.Now().Format("20060102")
+	res, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return res
+}
+
+func GetTomorrowIntOrPanic() int {
+	m := time.Now().Add(time.Hour * 24)
+	s := m.Format("20060102")
+	res, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return res
 }

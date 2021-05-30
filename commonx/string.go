@@ -44,6 +44,22 @@ func GetWords(target string) map[string]bool {
 	return res
 }
 
+func JsonStringError(v interface{}) (string, error) {
+
+	b, err := json.Marshal(v)
+	if err != nil {
+		log.Printf("err：%v", err)
+		return "JSON Marshal Failed", err
+	}
+	var out bytes.Buffer
+	err = json.Indent(&out, b, "", "\t")
+	if err != nil {
+		return string(b), err
+	} else {
+		return out.String(), nil
+	}
+}
+
 func JsonString(v interface{}) string {
 
 	b, err := json.Marshal(v)

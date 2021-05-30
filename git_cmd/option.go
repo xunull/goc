@@ -2,6 +2,10 @@ package git_cmd
 
 import "fmt"
 
+const (
+	PrettyRFC3339HashTime = "format:%h %cI"
+)
+
 type option struct {
 	ShortStat         bool
 	PrettyFormat      string
@@ -66,6 +70,18 @@ func WithShortStat() Option {
 	}
 }
 
+func WithNumStat() Option {
+	return func(o *option) {
+		o.ShortStat = false
+	}
+}
+
+func WithLogPrettyRFC3339() Option {
+	return func(o *option) {
+		o.PrettyFormat = PrettyRFC3339HashTime
+	}
+}
+
 func WithDefaultPrettyFormat() Option {
 	return func(o *option) {
 		o.PrettyFormat = "format:%h %cs"
@@ -75,6 +91,12 @@ func WithDefaultPrettyFormat() Option {
 func WithDefaultLogItemNum() Option {
 	return func(o *option) {
 		o.LogItemNum = 20
+	}
+}
+
+func WithLogItemLimit(limit int) Option {
+	return func(o *option) {
+		o.LogItemNum = limit
 	}
 }
 

@@ -8,12 +8,44 @@ type option struct {
 	TargetExt       string
 	Depth           int
 	OnlyDir         bool
+	ExcludeSuffixes []string
+	ExcludePrefixes []string
+	ExcludeDir      []string
+	excludeDirMap   map[string]struct{}
 }
 
 type Option func(o *option)
 
 func getDefaultOption() *option {
 	return &option{}
+}
+
+func WithExcludeDir(exclude []string) Option {
+	return func(o *option) {
+		o.ExcludeDir = exclude
+		o.excludeDirMap = make(map[string]struct{})
+		for _, dir := range exclude {
+			o.excludeDirMap[dir] = struct{}{}
+		}
+	}
+}
+
+func WithExcludeSuffix(list ...string) Option {
+	return func(o *option) {
+		if o.ExcludeSuffixes == nil {
+			o.ExcludeSuffixes = make([]string, 0)
+		}
+		o.ExcludeSuffixes = append(o.ExcludeSuffixes, list...)
+	}
+}
+
+func WithExcludePrefix(list ...string) Option {
+	return func(o *option) {
+		if o.ExcludePrefixes == nil {
+			o.ExcludePrefixes = make([]string, 0)
+		}
+		o.ExcludePrefixes = append(o.ExcludePrefixes, list...)
+	}
 }
 
 func WithOnlyDir() Option {

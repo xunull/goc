@@ -2,6 +2,7 @@ package slicex
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func splitWithLength(arr []interface{}, length int) {
@@ -32,4 +33,20 @@ func IsIncreasingInt64(arr []int64) bool {
 	} else {
 		return false
 	}
+}
+
+func IntToString(target []int) []string {
+	res := make([]string, 0, len(target))
+	for _, item := range target {
+		res = append(res, strconv.Itoa(item))
+	}
+	return res
+}
+
+func SliceStringToInterface(arr []string) []interface{} {
+	s := make([]interface{}, len(arr))
+	for i, v := range arr {
+		s[i] = v
+	}
+	return s
 }

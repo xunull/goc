@@ -3,8 +3,9 @@ package git_cmd
 import (
 	"github.com/xunull/goc/commandx"
 	"github.com/xunull/goc/enhance/stringsx"
-	"github.com/xunull/goc/traverse"
+	"github.com/xunull/goc/lang_ext"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -17,6 +18,137 @@ type GitDiffItem struct {
 	FileChangeNum  int
 	InsertNum      int
 	DeleteNum      int
+}
+
+type GitDiffItemListStat struct {
+	FileCount   int
+	InsertCount int
+	DeleteCount int
+}
+
+type GitDiffShotStat struct {
+	FileChange  int
+	InsertCount int
+	DeleteCount int
+}
+
+type GitDiffNumStat struct {
+	FileChangedList []string
+}
+
+type GitDiffItemList []*GitDiffItem
+
+func (g GitDiffItemList) Sort() {
+	sort.Slice(g, func(i, j int) bool {
+		if g[i].InsertNum != g[j].InsertNum {
+			return g[i].InsertNum > g[j].InsertNum
+		} else {
+			if g[i].DeleteNum != g[j].DeleteNum {
+				return g[i].DeleteNum > g[j].DeleteNum
+			} else {
+				return g[i].FileChangeNum > g[j].FileChangeNum
+			}
+		}
+	})
+}
+
+func (g *GitApi) GetGitDiffNumStat(start, end string, opts ...Option) (*GitDiffNumStat, error) {
+	res, err := g.GetDiffTwoCommit(start, end, WithNumStat())
+	if err != nil {
+		return nil, err
+	}
+
+	result := new(GitDiffNumStat)
+
+	lines := strings.Split(res, "\n")
+	result.FileChangedList = make([]string, 0, len(lines))
+	for _, line := range lines {
+		t := strings.Fields(line)
+		fp := t[2]
+		result.FileChangedList = append(result.FileChangedList, fp)
+	}
+	return result, nil
+}
+
+func (g *GitApi) GetGitDiffShortStat(start, end string, opts ...Option) (*GitDiffShotStat, error) {
+	res, err := g.GetDiffTwoCommit(start, end, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	sl := strings.Split(res, ",")
+	if len(sl) == 3 {
+		t := &GitDiffShotStat{
+		}
+
+		fc, err := strconv.Atoi(strings.Fields(sl[0])[0])
+		if err == nil {
+			t.FileChange = fc
+		}
+		in, err := strconv.Atoi(strings.Fields(sl[1])[0])
+		if err == nil {
+			t.InsertCount = in
+		}
+		dn, err := strconv.Atoi(strings.Fields(sl[2])[0])
+		if err == nil {
+			t.DeleteCount = dn
+		}
+		return t, nil
+	} else if len(sl) == 2 {
+		t := &GitDiffShotStat{}
+
+		if strings.Contains(sl[0], "files changed") {
+			dn, err := strconv.Atoi(strings.Fields(sl[0])[0])
+			if err == nil {
+				t.FileChange = dn
+			}
+		} else {
+			dn, err := strconv.Atoi(strings.Fields(sl[0])[0])
+			if err == nil {
+				t.DeleteCount = dn
+			}
+		}
+
+		if strings.Contains(sl[1], "insertions") {
+			in, err := strconv.Atoi(strings.Fields(sl[1])[0])
+			if err == nil {
+				t.InsertCount = in
+			}
+		} else {
+			dn, err := strconv.Atoi(strings.Fields(sl[1])[0])
+			if err == nil {
+				t.DeleteCount = dn
+			}
+		}
+		return t, nil
+	} else {
+		return &GitDiffShotStat{}, err
+	}
+
+}
+
+func (g *GitApi) GetGitDiffItemListStat(list []*GitDiffItem) GitDiffItemListStat {
+	sort.Slice(list, func(i, j int) bool {
+		if list[i].InsertNum != list[j].InsertNum {
+			return list[i].InsertNum > list[j].InsertNum
+		} else {
+			if list[i].DeleteNum != list[j].DeleteNum {
+				return list[i].DeleteNum > list[j].DeleteNum
+			} else {
+				return list[i].FileChangeNum > list[j].FileChangeNum
+			}
+		}
+	})
+
+	stat := GitDiffItemListStat{
+
+	}
+	for _, item := range list {
+		stat.FileCount += item.FileChangeNum
+		stat.InsertCount += item.InsertNum
+		stat.DeleteCount += item.DeleteNum
+	}
+	return stat
 }
 
 func (g *GitApi) getDiffItemWithTargetExts(str string, exts map[string]string) *GitDiffItem {
@@ -67,10 +199,10 @@ func (g *GitApi) GetGitDiffItem(str string, opts ...Option) *GitDiffItem {
 		}
 		return g.getDiffItemWithTargetExts(str, m)
 	} else if o.OnlyBackLanguage {
-		m := traverse.CommonBackLanguageExt
+		m := lang_ext.CommonBackLanguageExt
 		return g.getDiffItemWithTargetExts(str, m)
 	} else if o.OnlyFrontLanguage {
-		m := traverse.CommonFrontLanguageExt
+		m := lang_ext.CommonFrontLanguageExt
 		return g.getDiffItemWithTargetExts(str, m)
 	}
 
@@ -117,6 +249,8 @@ func (g *GitApi) GetGitDiffItem(str string, opts ...Option) *GitDiffItem {
 		return &GitDiffItem{}
 	}
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
 
 func (g *GitApi) GetDiffCommitAndWorkTree(commit string, ops ...Option) (string, error) {
 	o := g.getOption(ops...)

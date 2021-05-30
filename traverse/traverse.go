@@ -2,6 +2,8 @@ package traverse
 
 import (
 	"github.com/xunull/goc/commonx"
+	"github.com/xunull/goc/file_path"
+	"github.com/xunull/goc/lang_ext"
 	"github.com/xunull/goc/routine_pool"
 	"io/fs"
 	"io/ioutil"
@@ -76,14 +78,12 @@ func (t *DirTraverse) SetOption(opts ...Option) {
 
 func (t *DirTraverse) wrapCallback(item *TraverseItem) {
 	t.Fc(item)
-	//if !item.IsDir {
-	//	t.WorkSheet.TargetOver(item.Path)
-	//}
-	t.WorkSheet.TargetOver(item.Path)
+	t.WorkSheet.ItemOver(item.Path)
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 
+// main method
 func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int) {
 	defer t.wg.Done()
 	if t.option.Depth != 0 && depth > t.option.Depth {
@@ -100,7 +100,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 
 		if file.IsDir() {
 			if t.option.DefaultExclude || t.option.DotDirExclude {
-				if _, ok := CommonExcludeDir[file.Name()]; ok {
+				if _, ok := lang_ext.CommonExcludeDir[file.Name()]; ok {
 					continue
 				} else {
 					if t.option.DotDirExclude {
@@ -110,6 +110,14 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 					}
 				}
 			}
+
+			if t.option.ExcludeDir != nil && len(t.option.ExcludeDir) > 0 {
+				p := path.Join(parentPath, file.Name())
+				if _, ok := t.option.excludeDirMap[file_path.RemovePrefixN(p, 1)]; ok {
+					continue
+				}
+			}
+
 			t.wg.Add(1)
 
 			if t.option.SyncMode {
@@ -135,14 +143,38 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 			if t.option.OnlyDir {
 				continue
 			}
-
 			if t.option.TargetExt != "" {
 				if path.Ext(file.Name()) != t.option.TargetExt {
 					continue
 				}
 			}
 			if t.option.DefaultExclude {
-				if _, ok := CommonExcludeFileExt[path.Ext(file.Name())]; ok {
+				if _, ok := lang_ext.CommonExcludeFileExt[path.Ext(file.Name())]; ok {
+					continue
+				}
+			}
+			if t.option.ExcludeSuffixes != nil {
+				flag := false
+				for _, suffix := range t.option.ExcludeSuffixes {
+					if strings.HasSuffix(file.Name(), suffix) {
+						flag = true
+						break
+					}
+				}
+				if flag {
+					continue
+				}
+			}
+			if t.option.ExcludePrefixes != nil {
+				flag := false
+				for _, prefix := range t.option.ExcludePrefixes {
+
+					if strings.HasPrefix(file.Name(), prefix) {
+						flag = true
+						break
+					}
+				}
+				if flag {
 					continue
 				}
 			}
@@ -158,11 +190,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 			Depth:    depth + 1,
 		}
 
-		//if !ti.IsDir {
-		//	t.WorkSheet.Add(ti.Path)
-		//}
-
-		t.WorkSheet.Add(ti.Path)
+		t.WorkSheet.ItemAdd(ti.Path)
 
 		if t.option.SyncMode {
 			t.wrapCallback(ti)
@@ -175,20 +203,18 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 
 func (t *DirTraverse) Handle(opts ...Option) {
 	t.setOption(opts...)
-	//if t.option.WithProgressBar {
-	//	t.WorkSheet.StartProgressBar()
-	//}
-
 	defer close(t.errChan)
 
 	go t.processErr()
 
-	rootName := filepath.Base(t.Path)
-	t.wg.Add(1)
-	go t.traverseDir(t.Path, "", rootName, 0)
+	// last dir name
+	root := filepath.Base(t.Path)
 
+	t.wg.Add(1)
+	go t.traverseDir(t.Path, "", root, 0)
 	t.wg.Wait()
-	t.WorkSheet.AddOver()
+
+	t.WorkSheet.TraverseOver()
 	t.Over <- struct{}{}
 }
 
@@ -206,7 +232,7 @@ func (t *DirTraverse) getChildrenPath(fp string, parentPath string, ch chan stri
 		curPp := path.Join(parentPath, file.Name())
 		if file.IsDir() {
 			if t.option.DefaultExclude || t.option.DotDirExclude {
-				if _, ok := CommonExcludeDir[file.Name()]; ok {
+				if _, ok := lang_ext.CommonExcludeDir[file.Name()]; ok {
 					// pass
 				} else {
 					if t.option.DotDirExclude {

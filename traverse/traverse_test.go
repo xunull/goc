@@ -19,9 +19,7 @@ func TestDirTraverse(t *testing.T) {
 		t.Error(err)
 	}
 	fmt.Printf("path: %s\n", p)
-	dir := NewDirTraverse(p)
-
 	ts := TestStruct{}
-
-	dir.Handle(ts.Test1)
+	dir := NewDirTraverse(p, ts.Test1)
+	dir.Handle()
 }
