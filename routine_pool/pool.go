@@ -54,6 +54,10 @@ func (r *RoutinePool) prepareWorker() {
 	}
 }
 
+func (r *RoutinePool) GetRunningCount() int {
+	return r.runningCount
+}
+
 func (r *RoutinePool) runStatusChan() {
 	go func() {
 		for w := range r.StatusChan {
@@ -68,15 +72,10 @@ func (r *RoutinePool) runStatusChan() {
 				r.runningCount -= 1
 				w.status = Idle
 				r.IdleSheet[w.id] = w
-
 				r.IdleChan <- w
 			}
 		}
 	}()
-}
-
-func (r *RoutinePool) GetRunningCount() int {
-	return r.runningCount
 }
 
 func (r *RoutinePool) runWorkCore() {
