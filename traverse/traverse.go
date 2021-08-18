@@ -2,9 +2,9 @@ package traverse
 
 import (
 	"github.com/xunull/goc/commonx"
+	"github.com/xunull/goc/easy/routine_pool"
 	"github.com/xunull/goc/file_path"
 	"github.com/xunull/goc/lang_ext"
-	"github.com/xunull/goc/routine_pool"
 	"io/fs"
 	"io/ioutil"
 	"path"
