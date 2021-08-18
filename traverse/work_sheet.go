@@ -93,9 +93,7 @@ func (w *WorkSheet) TraverseOver() {
 			} else {
 				time.Sleep(100 * time.Millisecond)
 			}
-
 		}
-
 	}()
 }
 
