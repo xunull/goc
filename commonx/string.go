@@ -3,7 +3,7 @@ package commonx
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/rs/zerolog/log"
+	"fmt"
 	"strings"
 )
 
@@ -48,8 +48,7 @@ func JsonStringError(v interface{}) (string, error) {
 
 	b, err := json.Marshal(v)
 	if err != nil {
-		log.Printf("err：%v", err)
-		return "JSON Marshal Failed", err
+		return fmt.Sprintf("%v", v), err
 	}
 	var out bytes.Buffer
 	err = json.Indent(&out, b, "", "\t")
@@ -64,8 +63,7 @@ func JsonString(v interface{}) string {
 
 	b, err := json.Marshal(v)
 	if err != nil {
-		log.Printf("err：%v", err)
-		return "JSON Marshal Failed"
+		return fmt.Sprintf("%v", v)
 	}
 	var out bytes.Buffer
 	err = json.Indent(&out, b, "", "\t")
@@ -74,4 +72,9 @@ func JsonString(v interface{}) string {
 	} else {
 		return out.String()
 	}
+}
+
+func OutputJsonString(v interface{}) {
+	t, _ := JsonStringError(v)
+	fmt.Println(t)
 }
