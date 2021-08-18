@@ -1,4 +1,4 @@
-package routine_pool
+package guard_pool
 
 import "github.com/xunull/goc/easy"
 
@@ -17,7 +17,7 @@ type GoWorker struct {
 	status int
 }
 
-type RoutinePool struct {
+type GuardPool struct {
 	count        int
 	RunningSheet map[string]*GoWorker
 	IdleSheet    map[string]*GoWorker
@@ -31,8 +31,8 @@ type RoutinePool struct {
 	runningCount int
 }
 
-func NewPool(count int) *RoutinePool {
-	pool := &RoutinePool{
+func NewPool(count int) *GuardPool {
+	pool := &GuardPool{
 		RunningSheet: make(map[string]*GoWorker, count),
 		IdleSheet:    make(map[string]*GoWorker, count),
 		RunningChan:  make(chan *GoWorker, count),
@@ -47,7 +47,7 @@ func NewPool(count int) *RoutinePool {
 	return pool
 }
 
-func (r *RoutinePool) prepareWorker() {
+func (r *GuardPool) prepareWorker() {
 	for i := 0; i < r.count; i++ {
 		w := &GoWorker{
 			id: r.idMarker.GetNewWorkerId(),
@@ -56,11 +56,11 @@ func (r *RoutinePool) prepareWorker() {
 	}
 }
 
-func (r *RoutinePool) GetRunningCount() int {
+func (r *GuardPool) GetRunningCount() int {
 	return r.runningCount
 }
 
-func (r *RoutinePool) runStatusChan() {
+func (r *GuardPool) runStatusChan() {
 	go func() {
 		for w := range r.StatusChan {
 			if w.status == Pending {
@@ -80,7 +80,7 @@ func (r *RoutinePool) runStatusChan() {
 	}()
 }
 
-func (r *RoutinePool) runWorkCore() {
+func (r *GuardPool) runWorkCore() {
 
 	for w := range r.RunningChan {
 		if w.status == Pending {
@@ -96,7 +96,7 @@ func (r *RoutinePool) runWorkCore() {
 	}
 }
 
-func (r *RoutinePool) runTaskCore() {
+func (r *GuardPool) runTaskCore() {
 	for {
 		select {
 		case task := <-r.TaskFuncChan:
@@ -110,32 +110,36 @@ func (r *RoutinePool) runTaskCore() {
 	}
 }
 
-func (r *RoutinePool) run() {
+func (r *GuardPool) run() {
 	go r.runStatusChan()
 	go r.runWorkCore()
 	go r.runTaskCore()
 }
 
-func (r *RoutinePool) Start() {
+func (r *GuardPool) Start() {
 	r.run()
 }
 
-func (r *RoutinePool) Submit(task TaskFunc) {
+func (r *GuardPool) Submit(task TaskFunc) {
+	r.TaskFuncChan <- task
+}
+
+func (r *GuardPool) AsyncSubmit(task TaskFunc) {
 	go func() {
 		r.TaskFuncChan <- task
 	}()
 }
 
-func (r *RoutinePool) Release() {
+func (r *GuardPool) Release() {
 
 }
 
-func (r *RoutinePool) Pause() {
+func (r *GuardPool) Pause() {
 	r.pauseChan <- struct{}{}
 	r.running = false
 }
 
-func (r *RoutinePool) Recover() {
+func (r *GuardPool) Recover() {
 
 	if !r.running {
 		r.running = true
