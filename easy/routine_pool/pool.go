@@ -1,6 +1,9 @@
 package routine_pool
 
-import "github.com/xunull/goc/easy"
+import (
+	"github.com/xunull/goc/easy"
+	"sync"
+)
 
 type TaskFunc func()
 
@@ -12,9 +15,9 @@ const (
 )
 
 type GoWorker struct {
-	id     string
-	task   TaskFunc
-	status int
+	id       string
+	taskFunc TaskFunc
+	status   int
 }
 
 type RoutinePool struct {
@@ -27,8 +30,11 @@ type RoutinePool struct {
 	TaskFuncChan chan TaskFunc
 	idMarker     *easy.IdMarker
 	pauseChan    chan struct{}
+	stopChan     chan struct{}
 	running      bool
 	runningCount int
+	stopped      bool
+	mu           sync.Mutex
 }
 
 func NewPool(count int) *RoutinePool {
@@ -41,6 +47,7 @@ func NewPool(count int) *RoutinePool {
 		TaskFuncChan: make(chan TaskFunc, count),
 		count:        count,
 		idMarker:     &easy.IdMarker{},
+		stopChan:     make(chan struct{}, 3),
 	}
 
 	pool.prepareWorker()
@@ -61,8 +68,9 @@ func (r *RoutinePool) GetRunningCount() int {
 }
 
 func (r *RoutinePool) runStatusChan() {
-	go func() {
-		for w := range r.StatusChan {
+	for {
+		select {
+		case w := <-r.StatusChan:
 			if w.status == Pending {
 				delete(r.IdleSheet, w.id)
 				w.status = Running
@@ -76,35 +84,44 @@ func (r *RoutinePool) runStatusChan() {
 				r.IdleSheet[w.id] = w
 				r.IdleChan <- w
 			}
-		}
-	}()
-}
-
-func (r *RoutinePool) runWorkCore() {
-
-	for w := range r.RunningChan {
-		if w.status == Pending {
-			r.StatusChan <- w
-		} else {
-			go func(t *GoWorker) {
-				t.task()
-				t.task = nil
-				t.status = Over
-				r.StatusChan <- t
-			}(w)
+		case <-r.stopChan:
+			return
 		}
 	}
 }
 
-func (r *RoutinePool) runTaskCore() {
+func (r *RoutinePool) runWorkCore() {
+	for {
+		select {
+		case w := <-r.RunningChan:
+			if w.status == Pending {
+				r.StatusChan <- w
+			} else {
+				go func(t *GoWorker) {
+					t.taskFunc()
+					t.taskFunc = nil
+					t.status = Over
+					r.StatusChan <- t
+				}(w)
+			}
+		case <-r.stopChan:
+			return
+		}
+	}
+
+}
+
+func (r *RoutinePool) runTaskChan() {
 	for {
 		select {
 		case task := <-r.TaskFuncChan:
 			w := <-r.IdleChan
 			w.status = Pending
-			w.task = task
+			w.taskFunc = task
 			r.RunningChan <- w
 		case <-r.pauseChan:
+			return
+		case <-r.stopChan:
 			return
 		}
 	}
@@ -113,7 +130,7 @@ func (r *RoutinePool) runTaskCore() {
 func (r *RoutinePool) run() {
 	go r.runStatusChan()
 	go r.runWorkCore()
-	go r.runTaskCore()
+	go r.runTaskChan()
 }
 
 func (r *RoutinePool) Start() {
@@ -136,10 +153,8 @@ func (r *RoutinePool) Pause() {
 }
 
 func (r *RoutinePool) Recover() {
-
 	if !r.running {
 		r.running = true
-		go r.runTaskCore()
+		go r.runTaskChan()
 	}
-
 }
