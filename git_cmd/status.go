@@ -5,12 +5,18 @@ import (
 	"strings"
 )
 
-func (g *GitApi) IsWorktreeClean() (bool, error) {
+func (g *GitApi) WorktreeIsClean() (bool, error) {
 	cmd := []string{"git", "status"}
 
 	cmdRes := commandx.RunCommand(cmd, commandx.WithDir(g.Dir))
 	if cmdRes.Success {
-		return strings.Contains(cmdRes.Stdout.String(), "working tree clean"), nil
+		if strings.Contains(cmdRes.Stdout.String(), "working tree clean") {
+			return true, nil
+		} else if strings.Contains(cmdRes.Stdout.String(), "No commits yet") {
+			return true, nil
+		} else {
+			return false, nil
+		}
 	} else {
 		return false, cmdRes.Err
 	}
