@@ -1,10 +1,12 @@
 package lang_ext
 
 var CommonLanguageExt = map[string]string{
+	".cfg":   "Config",
 	".go":    "Golang",
 	".java":  "Java",
 	".py":    "Python",
 	".lua":   "Lua",
+	".j2":    "Jinja",
 	".c":     "C",
 	".cpp":   "C++",
 	".js":    "JavaScript",
@@ -13,7 +15,7 @@ var CommonLanguageExt = map[string]string{
 	".json":  "Json",
 	".yaml":  "Yaml",
 	".yml":   "Yaml",
-	".ini":   "ini",
+	".ini":   "Ini",
 	".md":    "Markdown",
 	".sh":    "Shell",
 	".html":  "Html",
@@ -22,6 +24,7 @@ var CommonLanguageExt = map[string]string{
 	".xml":   "XML",
 	"Grpc":   "Grpc",
 	".proto": "Grpc",
+	".txt":   "Text",
 }
 
 var CommonLanguageReverseExt = make(map[string]string)
@@ -67,4 +70,12 @@ var CommonBackLanguageExt = map[string]string{
 var CommonExcludeFileName = map[string]string{
 	"package.json":      "package.json",
 	"package-lock.json": "package-lock.json",
+}
+
+var CommonFileName = map[string]string{
+	"Makefile":   "Makefile",
+	"makefile":   "makefile",
+	"Dockerfile": "Dockerfile",
+	"README.md":  "ReadMe",
+	"Readme.md":  "ReadMe",
 }
