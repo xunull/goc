@@ -12,6 +12,7 @@ var CommonLanguageExt = map[string]string{
 	".vue":   "Vue",
 	".json":  "Json",
 	".yaml":  "Yaml",
+	".yml":   "Yaml",
 	".ini":   "ini",
 	".md":    "Markdown",
 	".sh":    "Shell",
