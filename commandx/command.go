@@ -30,9 +30,23 @@ func (r *CommandResult) OutputOrFatal() {
 	}
 }
 
-func RunCommand(command []string, ops ...Option) *CommandResult {
-	d := &option{
+func RunCommandForLast(commands [][]string, ops ...Option) (bool, *CommandResult) {
+	f := true
+	var res *CommandResult
+	for _, command := range commands {
+		res = RunCommand(command, ops...)
+		if res.Success {
+			continue
+		} else {
+			f = false
+			break
+		}
 	}
+	return f, res
+}
+
+func RunCommand(command []string, ops ...Option) *CommandResult {
+	d := &option{}
 	for _, o := range ops {
 		o(d)
 	}
