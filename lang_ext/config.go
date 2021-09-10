@@ -25,6 +25,7 @@ var CommonLanguageExt = map[string]string{
 	"Grpc":   "Grpc",
 	".proto": "Grpc",
 	".txt":   "Text",
+	".ipynb": "Jupyter",
 }
 
 var CommonLanguageReverseExt = make(map[string]string)
@@ -36,11 +37,20 @@ func init() {
 }
 
 var ExcludeLineCount = map[string]string{
-	".png":  "Png",
-	".jpg":  "Jpg",
-	".jpeg": "Jpg",
-	".gif":  "Gif",
-	".ico":  "Ico",
+	".png":   "Png",
+	".PNG":   "Png",
+	".jpg":   "Jpg",
+	".jpeg":  "Jpg",
+	".gif":   "GIF",
+	".ico":   "Ico",
+	".pdf":   "PDF",
+	".ttf":   "TTF",
+	".TTF":   "TTF",
+	".csv":   "CSV",
+	".zip":   "Zip",
+	".data":  "Data",
+	".model": "Model",
+	".pkl":   "pkl",
 }
 
 var CommonExcludeDir = map[string]string{
