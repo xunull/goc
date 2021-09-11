@@ -17,6 +17,17 @@ func (g *GitApi) CreateBranch(name string, ops ...Option) (string, error) {
 	}
 }
 
+func (g *GitApi) CheckoutRemoteBranch(local, remote, branch string, ops ...Option) (string, error) {
+	_ = g.getOption(ops...)
+	cmd := []string{"git", "checkout", "-b", local, fmt.Sprintf("%s/%s", remote, branch)}
+	cmdRes := commandx.RunCommand(cmd, commandx.WithDir(g.Dir))
+	if cmdRes.Success {
+		return strings.TrimSpace(cmdRes.Stdout.String()), nil
+	} else {
+		return cmdRes.Stderr.String(), cmdRes.Err
+	}
+}
+
 func (g *GitApi) PushU(local, remote string, ops ...Option) (string, error) {
 	_ = g.getOption(ops...)
 	cmd := []string{"git", "push", "-u", remote, local}
