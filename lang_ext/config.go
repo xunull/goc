@@ -9,6 +9,7 @@ var CommonLanguageExt = map[string]string{
 	".j2":    "Jinja",
 	".c":     "C",
 	".cpp":   "C++",
+	".h":     "C/C++ Header",
 	".js":    "JavaScript",
 	".ts":    "TypeScript",
 	".vue":   "Vue",
@@ -19,6 +20,7 @@ var CommonLanguageExt = map[string]string{
 	".md":    "Markdown",
 	".sh":    "Shell",
 	".html":  "Html",
+	".css":   "CSS",
 	".pl":    "Perl",
 	".perl":  "Perl",
 	".xml":   "XML",
@@ -26,6 +28,17 @@ var CommonLanguageExt = map[string]string{
 	".proto": "Grpc",
 	".txt":   "Text",
 	".ipynb": "Jupyter",
+	".m4":    "M4",
+	".am":    "AutoMake",
+	".texi":  "TEXINFO",
+	".po":    "PO File",
+	".awk":   "awk",
+	".rc":    "Windows Resource File",
+	".bmp":   "Bitmap",
+	".tex":   "TeX",
+	".php":   "PHP",
+	".conf":  "Configuration File",
+	".ac":    "Autoconf Script",
 }
 
 var CommonLanguageReverseExt = make(map[string]string)
@@ -51,6 +64,9 @@ var ExcludeLineCount = map[string]string{
 	".data":  "Data",
 	".model": "Model",
 	".pkl":   "pkl",
+	".svg":   "SVG",
+	".gz":    "Gz",
+	".sig":   "Signature File",
 }
 
 var CommonExcludeDir = map[string]string{

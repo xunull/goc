@@ -26,11 +26,9 @@ func NewMyHome(root string) *MyHome {
 		LogName:   "log",
 		AssetName: "asset",
 	}
-	if filepath.IsAbs(m.Root) {
-		m.rootTruePath = m.Root
-	} else {
-		m.rootTruePath = filepath.Join(getHomeDir(), m.Root)
-	}
+	h, err := homedir.Expand(m.Root)
+	commonx.CheckErrOrFatal(err)
+	m.rootTruePath = h
 	return m
 }
 

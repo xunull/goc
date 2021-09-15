@@ -21,7 +21,7 @@ func GetWorkDir() (string, error) {
 	cmd := []string{"git", "rev-parse", "--show-toplevel"}
 	res := commandx.RunCommand(cmd)
 	if res.Success {
-		return res.Stdout.String(), nil
+		return strings.TrimSpace(res.Stdout.String()), nil
 	} else {
 		return "", res.Err
 	}
