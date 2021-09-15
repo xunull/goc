@@ -17,7 +17,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/prometheus/client_golang v0.9.3
 	github.com/rs/zerolog v1.21.0
-	github.com/shirou/gopsutil v3.21.3+incompatible
+	github.com/shirou/gopsutil v3.21.8+incompatible
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.1
 	github.com/tklauser/go-sysconf v0.3.5 // indirect

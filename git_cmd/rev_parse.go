@@ -17,6 +17,16 @@ func IsGitRepo() bool {
 	}
 }
 
+func IsTargetGitRepo(target string) bool {
+	cmd := []string{"git", "rev-parse", "--is-inside-work-tree"}
+	res := commandx.RunCommand(cmd, commandx.WithDir(target))
+	if res.Success {
+		return strings.TrimSpace(res.Stdout.String()) == "true"
+	} else {
+		return false
+	}
+}
+
 func GetWorkDir() (string, error) {
 	cmd := []string{"git", "rev-parse", "--show-toplevel"}
 	res := commandx.RunCommand(cmd)

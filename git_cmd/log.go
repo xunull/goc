@@ -155,11 +155,13 @@ func (g *GitApi) GetParent(hash string) (string, error) {
 func (g *GitApi) GetLog(opts ...Option) (string, error) {
 	o := g.getOption(opts...)
 	g.option = o
-	cmd := []string{"git", "log"}
+	cmd := []string{"git", "--no-pager", "log"}
 
 	if o.Since != "" {
 		cmd = append(cmd, "--since="+o.Since)
-	} else {
+	}
+
+	if o.LogItemNum != 0 {
 		cmd = append(cmd, "-"+strconv.Itoa(o.LogItemNum))
 	}
 

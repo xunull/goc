@@ -18,6 +18,7 @@ type option struct {
 	ExcludeExt        []string
 	OnlyFrontLanguage bool
 	OnlyBackLanguage  bool
+	LogNoPage         bool
 }
 
 type Option func(o *option)
@@ -37,6 +38,12 @@ func WithOnlyBackLanguage() Option {
 func WithExcludeExt(exclude []string) Option {
 	return func(o *option) {
 		o.ExcludeExt = exclude
+	}
+}
+
+func WithLogNoPage() Option {
+	return func(o *option) {
+		o.LogNoPage = true
 	}
 }
 
@@ -108,7 +115,7 @@ func WithSince(day uint) Option {
 
 func (g *GitApi) getOption(opts ...Option) *option {
 	d := &option{
-		LogItemNum:   20,
+		LogItemNum:   0,
 		PrettyFormat: "format:%h %cs",
 	}
 	for _, o := range opts {

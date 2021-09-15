@@ -2,6 +2,7 @@ package file_utils
 
 import (
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -25,4 +26,19 @@ func CopyFileIntoDirOrFatal(src string, dir string) error {
 	name := filepath.Base(src)
 	dstName := filepath.Join(dir, name)
 	return CopyFile(dstName, src)
+}
+
+
+func ListFileNames(dirname string) ([]string, error) {
+
+	files, err := ioutil.ReadDir(dirname)
+	if err != nil {
+		return nil, err
+	} else {
+		res := make([]string, 0, len(files))
+		for _, file := range files {
+			res = append(res, file.Name())
+		}
+		return res, nil
+	}
 }

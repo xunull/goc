@@ -65,7 +65,8 @@ var ExcludeLineCount = map[string]string{
 	".model": "Model",
 	".pkl":   "pkl",
 	".svg":   "SVG",
-	".gz":    "Gz",
+	".gz":    "Tar File",
+	".tgz":   "Tar File",
 	".sig":   "Signature File",
 }
 
