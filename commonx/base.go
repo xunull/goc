@@ -10,8 +10,7 @@ import (
 
 func CheckErrOrFatal(err error) {
 	if err != nil {
-		log.Fatal().Err(err).Msg("\n" + string(debug.Stack()))
-		os.Exit(1)
+		log.Fatal().Err(err).Msgf("%v\n%s", err, string(debug.Stack()))
 	}
 }
 

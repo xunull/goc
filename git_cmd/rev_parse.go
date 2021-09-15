@@ -40,3 +40,21 @@ func GetGitDir() (string, error) {
 		return "", res.Err
 	}
 }
+
+func IsInGitDir() bool {
+	res := commandx.RunCommand([]string{"git", "rev-parse", "--is-inside-git-dir"})
+	if res.Success {
+		return strings.TrimSpace(res.Stdout.String()) == "true"
+	} else {
+		return false
+	}
+}
+
+func IsBareRepo() bool {
+	res := commandx.RunCommand([]string{"git", "rev-parse", "--is-bare-repository"})
+	if res.Success {
+		return strings.TrimSpace(res.Stdout.String()) == "true"
+	} else {
+		return false
+	}
+}
