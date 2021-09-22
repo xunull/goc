@@ -21,6 +21,7 @@ func NewTimeGrid(capacity int) *BoxTimeGrid {
 		timeTicker: time.NewTicker(time.Second),
 	}
 
+	return tg
 }
 
 func (b *BoxTimeGrid) run() {
@@ -33,7 +34,7 @@ func (b *BoxTimeGrid) run() {
 	}()
 }
 
-func (b *BoxTimeGrid) Save(data interface{}) {
+func (b *BoxTimeGrid) Put(data interface{}) {
 	tu := time.Now().Unix()
 
 	if dl, ok := b.Store[tu]; ok {
@@ -42,6 +43,10 @@ func (b *BoxTimeGrid) Save(data interface{}) {
 		b.Store[tu] = make([]interface{}, 0, 1024)
 		b.Store[tu] = append(b.Store[tu], data)
 	}
+
+
+
+
 }
 
 func Get
