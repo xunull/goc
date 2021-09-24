@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20210224194228-fe8f1750fd46 // indirect
-	github.com/brianvoe/gofakeit/v6 v6.4.0
+	github.com/brianvoe/gofakeit/v6 v6.8.0
 	github.com/cheggaaa/pb/v3 v3.0.8
 	github.com/fatih/color v1.10.0
 	github.com/gin-contrib/cors v1.3.1
