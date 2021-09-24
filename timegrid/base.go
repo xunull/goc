@@ -43,10 +43,4 @@ func (b *BoxTimeGrid) Put(data interface{}) {
 		b.Store[tu] = make([]interface{}, 0, 1024)
 		b.Store[tu] = append(b.Store[tu], data)
 	}
-
-
-
-
 }
-
-func Get
