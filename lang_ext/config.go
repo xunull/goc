@@ -1,5 +1,7 @@
 package lang_ext
 
+import "strings"
+
 var CommonLanguageExt = map[string]string{
 	".cfg":   "Config",
 	".go":    "Golang",
@@ -43,9 +45,12 @@ var CommonLanguageExt = map[string]string{
 
 var CommonLanguageReverseExt = make(map[string]string)
 
+var CommonLanguageLowerReverseExt = make(map[string]string)
+
 func init() {
 	for k, v := range CommonLanguageExt {
 		CommonLanguageReverseExt[v] = k
+		CommonLanguageLowerReverseExt[strings.ToLower(v)] = k
 	}
 }
 
