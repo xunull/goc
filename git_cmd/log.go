@@ -292,7 +292,7 @@ func (g *GitApi) GetCurrentLogGraph(opts ...Option) (string, error) {
 	g.option = o
 	cmd := []string{"git", "--no-pager", "log"}
 
-	cmd = append(cmd, "-n "+strconv.Itoa(o.LogItemNum))
+	//cmd = append(cmd, "-n "+strconv.Itoa(o.LogItemNum))
 	cmd = append(cmd, "--graph")
 	cmd = append(cmd, "--oneline")
 	cmd = append(cmd, "--decorate=short")

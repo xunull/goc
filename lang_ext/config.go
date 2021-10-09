@@ -10,6 +10,7 @@ var CommonLanguageExt = map[string]string{
 	".lua":   "Lua",
 	".j2":    "Jinja",
 	".c":     "C",
+	".cgi":   "cgi",
 	".cpp":   "C++",
 	".h":     "C/C++ Header",
 	".js":    "JavaScript",
@@ -41,6 +42,11 @@ var CommonLanguageExt = map[string]string{
 	".php":   "PHP",
 	".conf":  "Configuration File",
 	".ac":    "Autoconf Script",
+	".nsi":   "NSIS Script",
+	".asc":   "Key File",
+	".patch": "Patch File",
+	".sgml":  "Markup Language File",
+	".xaml":  "XML",
 }
 
 var CommonLanguageReverseExt = make(map[string]string)
