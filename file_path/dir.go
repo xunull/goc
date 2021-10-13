@@ -6,6 +6,7 @@ import (
 	"github.com/xunull/goc/enhance/timex"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func MakeCurTimeDir(parent string, opts ...Option) (string, error) {
@@ -29,4 +30,10 @@ func MakeDirOrFatal(p string) {
 		err = os.Mkdir(p, 0700)
 		commonx.CheckErrOrFatal(err)
 	}
+}
+
+func GetFileName(target string) string {
+	fs := filepath.Base(target)
+	ext := filepath.Ext(target)
+	return strings.TrimSuffix(fs, ext)
 }
