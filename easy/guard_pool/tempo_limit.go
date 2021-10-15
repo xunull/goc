@@ -18,6 +18,9 @@ func NewTempoLimit(limit, second int32) *TempoLimiter {
 		Limit:      limit,
 		SecondSpan: second,
 	}
+	var t int32
+	t = 0
+	tl.count = &t
 	go func() {
 		tl.start()
 	}()
@@ -40,7 +43,7 @@ func (t *TempoLimiter) start() {
 				t.mu.Lock()
 				t.restrict = false
 				go func() {
-					t.subscribeForResetFunc()
+					t.callSubscribeForResetFunc()
 				}()
 				t.mu.Unlock()
 
@@ -57,7 +60,7 @@ func (t *TempoLimiter) subscribeForRestrict(f func()) {
 	t.subscribeForRestrictFunc = f
 }
 
-func (t *TempoLimiter) hit() bool {
+func (t *TempoLimiter) Hit() bool {
 	if t.restrict {
 		return false
 	}
@@ -66,11 +69,11 @@ func (t *TempoLimiter) hit() bool {
 		t.mu.Lock()
 		t.restrict = true
 		go func() {
-			t.subscribeForRestrictFunc()
+			t.callSubscribeForRestrictFunc()
 		}()
 		t.mu.Unlock()
-		return true
-	} else {
 		return false
+	} else {
+		return true
 	}
 }
