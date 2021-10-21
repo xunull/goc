@@ -28,7 +28,6 @@ func CopyFileIntoDirOrFatal(src string, dir string) error {
 	return CopyFile(dstName, src)
 }
 
-
 func ListFileNames(dirname string) ([]string, error) {
 
 	files, err := ioutil.ReadDir(dirname)
