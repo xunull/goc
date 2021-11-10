@@ -10,7 +10,7 @@ func (g *GitApi) GitPush(opts ...Option) (string, error) {
 	cmd := []string{"git", "push"}
 	cmdRes := commandx.RunCommand(cmd, commandx.WithDir(g.Dir))
 	if cmdRes.Success {
-		return strings.TrimSpace(cmdRes.Stdout.String()), nil
+		return strings.TrimSpace(cmdRes.Stdout.String() + "\n" + cmdRes.Stderr.String()), nil
 	} else {
 		return cmdRes.Stderr.String(), cmdRes.Err
 	}
