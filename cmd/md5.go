@@ -28,13 +28,10 @@ var md5Cmd = &cobra.Command{
 			res, err := common.MD5File(filepath.Join(wd, t))
 			commonx.CheckErrOrFatal(err)
 			fmt.Println(res)
-
 		}
-
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(md5Cmd)
-
 }
