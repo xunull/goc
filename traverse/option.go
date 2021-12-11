@@ -12,6 +12,7 @@ type option struct {
 	ExcludePrefixes []string
 	ExcludeDir      []string
 	excludeDirMap   map[string]struct{}
+	ExcludeUnknown  bool
 }
 
 type Option func(o *option)
@@ -76,6 +77,12 @@ func WithDefaultExclude() Option {
 	return func(o *option) {
 		o.DefaultExclude = true
 		o.DotDirExclude = true
+	}
+}
+
+func WithExcludeUnknown(exclude bool) Option {
+	return func(o *option) {
+		o.ExcludeUnknown = exclude
 	}
 }
 
