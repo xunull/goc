@@ -28,6 +28,12 @@ func CopyFileIntoDirOrFatal(src string, dir string) error {
 	return CopyFile(dstName, src)
 }
 
+func CopyFileIntoDir(src string, dir string) error {
+	name := filepath.Base(src)
+	dstName := filepath.Join(dir, name)
+	return CopyFile(dstName, src)
+}
+
 func ListFileNames(dirname string) ([]string, error) {
 
 	files, err := ioutil.ReadDir(dirname)
