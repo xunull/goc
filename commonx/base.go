@@ -22,4 +22,5 @@ func QuitWatch() {
 		syscall.SIGTERM,
 		syscall.SIGQUIT)
 	<-c
+	os.Exit(-1)
 }

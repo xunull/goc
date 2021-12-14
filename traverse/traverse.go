@@ -35,17 +35,20 @@ type TraverseItem struct {
 	Depth    int
 }
 
-func NewDirTraverse(p string, fc func(item *TraverseItem)) *DirTraverse {
+func NewDirTraverse(p string, fc func(item *TraverseItem), opts ...Option) *DirTraverse {
 	d := &DirTraverse{
-		Path:        p,
-		wg:          &sync.WaitGroup{},
-		errChan:     make(chan error),
-		Over:        make(chan struct{}, 1),
-		WorkSheet:   NewWorkSheet(),
-		option:      getDefaultOption(),
-		Fc:          fc,
-		routinePool: routine_pool.NewPool(1024),
+		Path:      p,
+		wg:        &sync.WaitGroup{},
+		errChan:   make(chan error),
+		Over:      make(chan struct{}, 1),
+		WorkSheet: NewWorkSheet(),
+		option:    getDefaultOption(),
+		Fc:        fc,
 	}
+
+	d.setOption(opts...)
+
+	d.routinePool = routine_pool.NewPool(d.option.WorkerCount)
 
 	d.routinePool.Start()
 
@@ -192,7 +195,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 
 		t.WorkSheet.ItemAdd(ti.Path)
 
-		if t.option.SyncMode {
+		if t.option.SyncFileOpMode {
 			t.wrapCallback(ti)
 		} else {
 			ti := ti

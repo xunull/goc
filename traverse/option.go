@@ -5,6 +5,7 @@ type option struct {
 	DotDirExclude   bool
 	WithProgressBar bool
 	SyncMode        bool
+	SyncFileOpMode  bool
 	TargetExt       string
 	Depth           int
 	OnlyDir         bool
@@ -13,12 +14,21 @@ type option struct {
 	ExcludeDir      []string
 	excludeDirMap   map[string]struct{}
 	ExcludeUnknown  bool
+	WorkerCount     int
 }
 
 type Option func(o *option)
 
 func getDefaultOption() *option {
-	return &option{}
+	return &option{
+		WorkerCount: 1024,
+	}
+}
+
+func WithWorkerCount(count int) Option {
+	return func(o *option) {
+		o.WorkerCount = count
+	}
 }
 
 func WithExcludeDir(exclude []string) Option {
@@ -64,6 +74,12 @@ func WithDepth(depth int) Option {
 func WithSyncMode() Option {
 	return func(o *option) {
 		o.SyncMode = true
+	}
+}
+
+func WithSyncFileOpMode() Option {
+	return func(o *option) {
+		o.SyncFileOpMode = true
 	}
 }
 
