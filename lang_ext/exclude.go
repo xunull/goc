@@ -9,6 +9,7 @@ var CommonExcludeDir = map[string]string{
 	"dist":         "dist",
 	"node_modules": "node_modules",
 	"public":       "public",
+	"vendor":       "vendor",
 }
 
 var CommonExcludeFileExt = map[string]string{
