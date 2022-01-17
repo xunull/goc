@@ -41,4 +41,6 @@ var ExcludeLineCount = map[string]string{
 	".sig":   "Signature File",
 	".pyi":   "pyi",
 	".pptx":  "ppt",
+	".pth":   "PTH",
+	".h5":    "H5",
 }
