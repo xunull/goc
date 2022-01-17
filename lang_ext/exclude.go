@@ -15,6 +15,9 @@ var CommonExcludeDir = map[string]string{
 var CommonExcludeFileExt = map[string]string{
 	".exe": "exe",
 	".pyc": "pyc",
+	".bin": "bin",
+	".dll": "dll",
+	".pdb": "pdb",
 }
 
 var ExcludeLineCount = map[string]string{
@@ -36,4 +39,6 @@ var ExcludeLineCount = map[string]string{
 	".gz":    "Tar File",
 	".tgz":   "Tar File",
 	".sig":   "Signature File",
+	".pyi":   "pyi",
+	".pptx":  "ppt",
 }
