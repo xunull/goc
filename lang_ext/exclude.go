@@ -34,7 +34,6 @@ var ExcludeLineCount = map[string]string{
 	".zip":   "Zip",
 	".data":  "Data",
 	".model": "Model",
-	".pkl":   "pkl",
 	".svg":   "SVG",
 	".gz":    "Tar File",
 	".tgz":   "Tar File",
@@ -42,5 +41,6 @@ var ExcludeLineCount = map[string]string{
 	".pyi":   "pyi",
 	".pptx":  "ppt",
 	".pth":   "PTH",
+	".pkl":   "PKL",
 	".h5":    "H5",
 }
