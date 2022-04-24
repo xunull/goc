@@ -48,4 +48,5 @@ var CommonLanguageExt = map[string]string{
 	".patch": "Patch File",
 	".sgml":  "Markup Language File",
 	".xaml":  "XML",
+	".pyx":   "pyx",
 }

@@ -6,10 +6,11 @@ var CommonExcludeFileName = map[string]string{
 }
 
 var CommonExcludeDir = map[string]string{
-	"dist":         "dist",
-	"node_modules": "node_modules",
-	"public":       "public",
-	"vendor":       "vendor",
+	"dist":              "dist",
+	"node_modules":      "node_modules",
+	"public":            "public",
+	"vendor":            "vendor",
+	"cmake-build-debug": "cmake-build=debug",
 }
 
 var CommonExcludeFileExt = map[string]string{
@@ -18,9 +19,12 @@ var CommonExcludeFileExt = map[string]string{
 	".bin": "bin",
 	".dll": "dll",
 	".pdb": "pdb",
+	".pt":  "pt",
+	".log": "log",
 }
 
 var ExcludeLineCount = map[string]string{
+	".mp4":   "MP4",
 	".png":   "Png",
 	".PNG":   "Png",
 	".jpg":   "Jpg",
