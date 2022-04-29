@@ -13,6 +13,7 @@ var CommonLanguageExt = map[string]string{
 	".h":     "C/C++ Header",
 	".cgi":   "cgi",
 	".cpp":   "C++",
+	".hpp":   "C++",
 	".js":    "JavaScript",
 	".ts":    "TypeScript",
 	".vue":   "Vue",
