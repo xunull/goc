@@ -2,6 +2,8 @@ package git_cmd
 
 import (
 	"github.com/xunull/goc/commandx"
+	"github.com/xunull/goc/commonx"
+	"regexp"
 	"strings"
 )
 
@@ -24,8 +26,6 @@ func (r *RepoRemotes) IsHaveRemote(name string) bool {
 	}
 	return false
 }
-
-
 
 func (g *GitApi) AddRemote(name, url string, ops ...Option) (string, error) {
 	_ = g.getOption(ops...)
@@ -94,4 +94,27 @@ func (g *GitApi) getRemotes(ops ...Option) (string, error) {
 	} else {
 		return cmdRes.Stderr.String(), cmdRes.Err
 	}
+}
+
+var usernameReg, _ = regexp.Compile(`^.*/(?P<username>.*)/.*$`)
+
+func (g *GitApi) GetRemoteUsername() string {
+	rr, err := g.GetRepoRemotes()
+	commonx.CheckErrOrFatal(err)
+
+	if rr != nil && (rr.IsHaveRemote("origin")) {
+		for _, item := range rr.Remotes {
+
+			if item.Name == "origin" {
+				temp := usernameReg.FindStringSubmatch(item.Url)
+				if len(temp) == 2 {
+					return temp[1]
+				}
+
+			}
+
+		}
+	}
+
+	return ""
 }
