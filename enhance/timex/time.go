@@ -124,3 +124,7 @@ func IsBeforeToday(d time.Time) bool {
 	t, _ := time.Parse("2006-01-02", time.Now().Format("2006-01-02"))
 	return t.After(d)
 }
+
+func IsSameDay(one, two time.Time) bool {
+	return one.YearDay() == two.YearDay() && one.Year() == two.Year()
+}
