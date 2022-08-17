@@ -26,3 +26,7 @@ func GetFileName(target string) string {
 	ext := filepath.Ext(target)
 	return strings.TrimSuffix(fs, ext)
 }
+
+func GetFullFileName(target string) string {
+	return filepath.Base(target)
+}
