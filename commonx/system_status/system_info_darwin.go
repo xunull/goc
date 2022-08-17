@@ -1,4 +1,4 @@
-//go:build !darwin
+//go:build darwin
 
 // Package system_status
 // ------------------------------------------------------------------------
@@ -7,11 +7,7 @@
 package system_status
 
 import (
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/disk"
-	"github.com/shirou/gopsutil/mem"
 	"runtime"
-	"time"
 )
 
 const (
@@ -80,39 +76,13 @@ func (s *SystemStatus) getOsStatus() (o Os) {
 }
 
 func (s *SystemStatus) getCpuStatus() (c Cpu, err error) {
-	if cores, err := cpu.Counts(false); err != nil {
-		return c, err
-	} else {
-		c.Cores = cores
-	}
-	if cpus, err := cpu.Percent(time.Duration(250)*time.Millisecond, true); err != nil {
-		return c, err
-	} else {
-		c.Cpus = cpus
-	}
-	return c, nil
+	return Cpu{}, nil
 }
 
 func (s *SystemStatus) getRamStatus() (r Ram, err error) {
-	if u, err := mem.VirtualMemory(); err != nil {
-		return r, err
-	} else {
-		r.UsedMB = int(u.Used) / MB
-		r.TotalMB = int(u.Total) / MB
-		r.UsedPercent = int(u.UsedPercent)
-	}
-	return r, nil
+	return Ram{}, nil
 }
 
 func (s *SystemStatus) getDiskStatus() (d Disk, err error) {
-	if u, err := disk.Usage("/"); err != nil {
-		return d, err
-	} else {
-		d.UsedMB = int(u.Used) / MB
-		d.UsedGB = int(u.Used) / GB
-		d.TotalMB = int(u.Total) / MB
-		d.TotalGB = int(u.Total) / GB
-		d.UsedPercent = int(u.UsedPercent)
-	}
-	return d, nil
+	return Disk{}, nil
 }
