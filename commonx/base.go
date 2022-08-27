@@ -1,6 +1,7 @@
 package commonx
 
 import (
+	"fmt"
 	"github.com/rs/zerolog/log"
 	"os"
 	"os/signal"
@@ -10,6 +11,7 @@ import (
 
 func CheckErrOrFatal(err error) {
 	if err != nil {
+		fmt.Println(err)
 		log.Fatal().Err(err).Msgf("%v\n%s", err, string(debug.Stack()))
 	}
 }
