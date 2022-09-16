@@ -3,6 +3,7 @@ package commandx
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -11,9 +12,9 @@ import (
 )
 
 type CommandResult struct {
-	Status  int
 	Stdout  bytes.Buffer
 	Stderr  bytes.Buffer
+	Status  int
 	Success bool
 	Err     error
 }
@@ -51,13 +52,19 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 		o(d)
 	}
 
-	ctx, _ := context.WithTimeout(context.Background(), time.Second*20)
+	if d.Timeout == 0 {
+		d.Timeout = time.Second * 20
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout)
+	defer cancel()
 	var cmd *exec.Cmd
 	if len(command) > 1 {
 		cmd = exec.CommandContext(ctx, command[0], command[1:]...)
 	} else {
 		cmd = exec.CommandContext(ctx, command[0])
 	}
+
 	cmd.Env = os.Environ()
 
 	if d.Dir != "" {
@@ -76,7 +83,6 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 			Success: true,
 		}
 	} else {
-
 		r := &CommandResult{
 			Stdout:  stdout,
 			Stderr:  stderr,
@@ -84,7 +90,8 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 			Err:     err,
 		}
 
-		if ex, ok := err.(*exec.ExitError); ok {
+		var ex *exec.ExitError
+		if errors.As(err, &ex) {
 			r.Status = ex.ExitCode()
 		}
 		return r

@@ -9,3 +9,9 @@ func (g *GitApi) FetchRemote(remote string) (bool, *commandx.CommandResult) {
 	res := commandx.RunCommand(cmd, commandx.WithDir(g.Dir))
 	return res.Success, res
 }
+
+func (g *GitApi) FetchAll() (bool, *commandx.CommandResult) {
+	cmd := []string{"git", "fetch", "--all"}
+	res := commandx.RunCommand(cmd, commandx.WithDir(g.Dir))
+	return res.Success, res
+}

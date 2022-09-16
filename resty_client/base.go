@@ -104,7 +104,7 @@ func (c *RestyClient) Json(resp *resty.Response, target interface{}) (interface{
 func (c *RestyClient) CheckUrlExist(url string) (bool, error) {
 	if resp, err := c.Client.R().Get(url); err == nil {
 		fmt.Printf("%v\n", resp)
-		fmt.Printf("%s\n",resp.Request.URL)
+		fmt.Printf("%s\n", resp.Request.URL)
 		return resp.IsSuccess(), nil
 	} else {
 		return false, err
@@ -118,4 +118,8 @@ func (c *RestyClient) FormatJson(resp *resty.Response) (string, error) {
 	} else {
 		return "", err
 	}
+}
+
+func (c *RestyClient) JsonRequest() *resty.Request {
+	return c.Client.R().SetHeader("Content-Type", "application/json")
 }
