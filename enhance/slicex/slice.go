@@ -9,7 +9,7 @@ func splitWithLength(arr []interface{}, length int) {
 
 }
 
-// todo 这个方法有人调用么
+// todo 这个方法有调用么
 func splitWithCount(arr []interface{}, count int) {
 	if count <= 1 {
 

@@ -21,6 +21,9 @@ var CommonExcludeFileExt = map[string]string{
 	".pdb": "pdb",
 	".pt":  "pt",
 	".log": "log",
+	".o":   "c/c++",
+	".so":  "c/c++",
+	".sum": "golang go.sum",
 }
 
 var ExcludeLineCount = map[string]string{
@@ -48,4 +51,9 @@ var ExcludeLineCount = map[string]string{
 	".pkl":   "PKL",
 	".h5":    "H5",
 	".npy":   "npy",
+	".npz":   "npz",
+	".db":    "Database Files",
+	".obj":   "OBJ",
+	".ply":   "PLY",
+	".pb":    "PB",
 }
