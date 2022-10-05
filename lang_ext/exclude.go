@@ -48,4 +48,5 @@ var ExcludeLineCount = map[string]string{
 	".pkl":   "PKL",
 	".h5":    "H5",
 	".npy":   "npy",
+	".db":    "Database Files",
 }
