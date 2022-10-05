@@ -40,6 +40,7 @@ var ExcludeLineCount = map[string]string{
 	".svg":   "SVG",
 	".gz":    "Tar File",
 	".tgz":   "Tar File",
+	".tar":   "Tar File",
 	".sig":   "Signature File",
 	".pyi":   "pyi",
 	".pptx":  "ppt",
