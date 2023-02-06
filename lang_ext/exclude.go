@@ -21,6 +21,8 @@ var CommonExcludeFileExt = map[string]string{
 	".pdb": "pdb",
 	".pt":  "pt",
 	".log": "log",
+	".o":   "c/c++",
+	".so":  "c/c++",
 }
 
 var ExcludeLineCount = map[string]string{
