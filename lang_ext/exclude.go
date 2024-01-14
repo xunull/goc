@@ -23,6 +23,7 @@ var CommonExcludeFileExt = map[string]string{
 	".log": "log",
 	".o":   "c/c++",
 	".so":  "c/c++",
+	".sum": "golang go.sum",
 }
 
 var ExcludeLineCount = map[string]string{
