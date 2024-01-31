@@ -3,6 +3,7 @@ package commandx
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -76,7 +77,6 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 			Success: true,
 		}
 	} else {
-
 		r := &CommandResult{
 			Stdout:  stdout,
 			Stderr:  stderr,
@@ -84,7 +84,8 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 			Err:     err,
 		}
 
-		if ex, ok := err.(*exec.ExitError); ok {
+		var ex *exec.ExitError
+		if errors.As(err, &ex) {
 			r.Status = ex.ExitCode()
 		}
 		return r
