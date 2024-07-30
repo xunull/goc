@@ -75,6 +75,7 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 	var stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err == nil {
 		return &CommandResult{
 			Status:  0,
