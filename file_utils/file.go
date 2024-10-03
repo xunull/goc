@@ -47,3 +47,7 @@ func ListFileNames(dirname string) ([]string, error) {
 		return res, nil
 	}
 }
+
+func IsSymlink(mode os.FileMode) bool {
+	return mode&os.ModeSymlink != 0
+}
