@@ -4,6 +4,7 @@ import (
 	"github.com/xunull/goc/commonx"
 	"github.com/xunull/goc/easy/routine_pool"
 	"github.com/xunull/goc/file_path"
+	"github.com/xunull/goc/file_utils"
 	"github.com/xunull/goc/lang_ext"
 	"io/fs"
 	"io/ioutil"
@@ -101,7 +102,10 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 
 	for _, file := range files {
 
-		if file.IsDir() {
+		if file_utils.IsSymlink(file.Mode()) {
+			// symlink
+			continue
+		} else if file.IsDir() {
 			if t.option.DefaultExclude || t.option.DotDirExclude {
 				if _, ok := lang_ext.CommonExcludeDir[file.Name()]; ok {
 					continue
