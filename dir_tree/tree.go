@@ -2,7 +2,6 @@ package dir_tree
 
 import (
 	"github.com/xunull/goc/easy/routine_pool"
-	"io/fs"
 	"sync"
 )
 
@@ -11,15 +10,6 @@ type (
 		Root        string
 		routinePool *routine_pool.RoutinePool
 		option      *option
-	}
-	TItemInfo struct {
-		Fs       fs.FileInfo
-		IsDir    bool
-		FilePath string
-		Path     string
-		Parent   string
-		Ext      string
-		Depth    int
 	}
 )
 
