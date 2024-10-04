@@ -14,12 +14,16 @@ type (
 	walkTarget struct {
 		dirname string
 		dt      *DTree
-		wg      sync.WaitGroup
+		wg      *sync.WaitGroup
+		pwg     *sync.WaitGroup
+		depth   int
 	}
 )
 
-func (wt *walkTarget) walk(depth int) {
-	if depth > wt.dt.option.Depth {
+func (wt *walkTarget) walk() {
+	defer wt.pwg.Done()
+
+	if wt.depth > wt.dt.option.Depth {
 		return
 	}
 	entries, err := os.ReadDir(wt.dirname)
@@ -40,9 +44,10 @@ func (wt *walkTarget) walk(depth int) {
 	}
 
 	if !wt.dt.option.OnlyDir {
+		// handle file
 		go func() {
 			for _, entry := range fileList {
-				wt.handleFile()
+				wt.handleFile(entry)
 			}
 		}()
 	}
@@ -51,63 +56,63 @@ func (wt *walkTarget) walk(depth int) {
 		return
 	}
 
+	dirList = wt.filterDir(dirList)
+	if len(dirList) == 0 {
+		return
+	}
+
 	wt.wg.Add(len(dirList))
-	go func() {
-		for _, entry := range dirList {
+	for _, entry := range dirList {
+		go wt.createSubWalkTarget(entry.Name(), wt.wg).walk()
+	}
 
-		}
-	}()
+	wt.wg.Wait()
 
-	for _, entry := range entries {
-		if file_utils.IsSymlink(entry.Type()) {
-			continue
-		}
-		if entry.IsDir() {
+}
 
-			if wt.dt.option.DefaultExclude || wt.dt.option.DotDirExclude {
-				if _, ok := lang_ext.CommonExcludeDir[entry.Name()]; ok {
-					continue
-				} else {
-					if wt.dt.option.DotDirExclude {
-						if strings.HasPrefix(entry.Name(), ".") {
-							continue
-						}
-					}
-				}
-			}
+func (wt *walkTarget) createSubWalkTarget(sub string, pwg *sync.WaitGroup) *walkTarget {
 
-			if wt.dt.option.ExcludeDir != nil && len(wt.dt.option.ExcludeDir) > 0 {
-				p := path.Join(wt.dirname, entry.Name())
-				if _, ok := wt.dt.option.excludeDirMap[file_path.RemovePrefixN(p, 1)]; ok {
-					continue
-				}
-			}
-
-		} else {
-			if wt.dt.option.OnlyDir {
-				continue
-			}
-			if wt.dt.option.TargetExt != "" {
-				if path.Ext(entry.Name()) != wt.dt.option.TargetExt {
-					continue
-				}
-			}
-
-			if wt.dt.option.DefaultExclude {
-				if _, ok := lang_ext.CommonExcludeFileExt[path.Ext(entry.Name())]; ok {
-					continue
-				}
-			}
-		}
+	dirname := path.Join(wt.dirname, sub)
+	return &walkTarget{
+		dirname: dirname,
+		dt:      wt.dt,
+		pwg:     pwg,
 	}
 
 }
 
-func (wt *walkTarget) handleDir(info os.FileInfo) {
+func (wt *walkTarget) filterDir(dirList []os.DirEntry) []os.DirEntry {
+
+	res := make([]os.DirEntry, 0)
+
+	for _, entry := range dirList {
+		if wt.dt.option.DefaultExclude || wt.dt.option.DotDirExclude {
+			if _, ok := lang_ext.CommonExcludeDir[entry.Name()]; ok {
+				continue
+			} else {
+				if wt.dt.option.DotDirExclude {
+					if strings.HasPrefix(entry.Name(), ".") {
+						continue
+					}
+				}
+			}
+		}
+
+		if wt.dt.option.ExcludeDir != nil && len(wt.dt.option.ExcludeDir) > 0 {
+			p := path.Join(wt.dirname, entry.Name())
+			if _, ok := wt.dt.option.excludeDirMap[file_path.RemovePrefixN(p, 1)]; ok {
+				continue
+			}
+		}
+
+		res = append(res, entry)
+	}
+	return res
 
 }
 
 func (wt *walkTarget) handleFile(entry os.DirEntry) {
+	// only handle target ext file
 	if wt.dt.option.TargetExt != "" {
 		if path.Ext(entry.Name()) != wt.dt.option.TargetExt {
 			return
@@ -118,6 +123,7 @@ func (wt *walkTarget) handleFile(entry os.DirEntry) {
 			return
 		}
 	}
+	// exclude suffixes
 	if wt.dt.option.ExcludeSuffixes != nil {
 		flag := false
 		for _, suffix := range wt.dt.option.ExcludeSuffixes {
@@ -130,6 +136,7 @@ func (wt *walkTarget) handleFile(entry os.DirEntry) {
 			return
 		}
 	}
+	// exclude prefixes
 	if wt.dt.option.ExcludePrefixes != nil {
 		flag := false
 		for _, prefix := range wt.dt.option.ExcludePrefixes {
