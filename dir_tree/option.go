@@ -2,15 +2,15 @@ package dir_tree
 
 type option struct {
 	DefaultExclude  bool
-	DotDirExclude   bool
+	DotDirExclude   bool // exclude .*
 	WithProgressBar bool
 	SyncMode        bool
 	SyncFileOpMode  bool
-	TargetExt       string
-	Depth           int
+	TargetExt       string // only handle target ext file
+	Depth           int    // depth
 	OnlyDir         bool
-	ExcludeSuffixes []string
-	ExcludePrefixes []string
+	ExcludeSuffixes []string // exclude suffix
+	ExcludePrefixes []string // exclude prefix
 	ExcludeDir      []string
 	excludeDirMap   map[string]struct{}
 	ExcludeUnknown  bool

@@ -3,6 +3,7 @@ package dir_tree
 import (
 	"github.com/xunull/goc/easy/routine_pool"
 	"io/fs"
+	"sync"
 )
 
 type (
@@ -38,5 +39,12 @@ func (dt *DTree) setOption(opts ...Option) {
 }
 
 func (dt *DTree) Exec() {
-
+	wt := walkTarget{
+		dirname: dt.Root,
+		dt:      dt,
+	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	wt.pwg = &wg
+	wt.walk()
 }
