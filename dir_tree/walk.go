@@ -63,6 +63,7 @@ func (wt *walkTarget) walk() {
 
 	wt.wg.Add(len(dirList))
 	for _, entry := range dirList {
+		wt.dt.hf.DirFunc(wt.createTreeItem(entry))
 		go wt.createSubWalkTarget(entry.Name(), wt.wg).walk()
 	}
 
@@ -111,6 +112,21 @@ func (wt *walkTarget) filterDir(dirList []os.DirEntry) []os.DirEntry {
 
 }
 
+func (wt *walkTarget) createTreeItem(entry os.DirEntry) *TreeItem {
+	i, err := entry.Info()
+	if err != nil {
+		// todo
+	}
+	ti := &TreeItem{
+		Fs: i,
+	}
+	ti.Parent = wt.dirname
+	ti.Ext = path.Ext(entry.Name())
+	ti.Depth = wt.depth
+
+	return ti
+}
+
 func (wt *walkTarget) handleFile(entry os.DirEntry) {
 	// only handle target ext file
 	if wt.dt.option.TargetExt != "" {
@@ -150,4 +166,6 @@ func (wt *walkTarget) handleFile(entry os.DirEntry) {
 			return
 		}
 	}
+
+	wt.dt.hf.FileFunc(wt.createTreeItem(entry))
 }

@@ -10,12 +10,20 @@ type (
 		Root        string
 		routinePool *routine_pool.RoutinePool
 		option      *option
+		hf          HandlerFunc
+	}
+
+	HandlerFunc struct {
+		DirFunc    func(obj *TreeItem)
+		FileFunc   func(obj *TreeItem)
+		FinishFunc func()
 	}
 )
 
-func CreateTree(root string, opts ...Option) *DTree {
+func CreateTree(root string, hf HandlerFunc, opts ...Option) *DTree {
 	dt := &DTree{
 		Root: root,
+		hf:   hf,
 	}
 	dt.setOption(opts...)
 	dt.routinePool = routine_pool.NewPool(dt.option.WorkerCount)
@@ -37,4 +45,10 @@ func (dt *DTree) Exec() {
 	wg.Add(1)
 	wt.pwg = &wg
 	wt.walk()
+	wg.Wait()
+
+	if dt.hf.FinishFunc != nil {
+		dt.hf.FinishFunc()
+	}
+
 }
