@@ -68,7 +68,11 @@ func (wt *walkTarget) walk() {
 	for _, entry := range dirList {
 
 		wt.dt.routinePool.Submit(func() {
-			wt.dt.hf.DirFunc(wt.createTreeItem(entry))
+
+			if wt.dt.hf.DirFunc != nil {
+				wt.dt.hf.DirFunc(wt.createTreeItem(entry))
+			}
+
 			wt.createSubWalkTarget(entry.Name()).walk()
 		})
 	}
@@ -177,6 +181,8 @@ func (wt *walkTarget) handleFile(entry os.DirEntry) {
 			return
 		}
 	}
+	if wt.dt.hf.FileFunc != nil {
+		wt.dt.hf.FileFunc(wt.createTreeItem(entry))
+	}
 
-	wt.dt.hf.FileFunc(wt.createTreeItem(entry))
 }
