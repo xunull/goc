@@ -69,7 +69,7 @@ func (wt *walkTarget) walk() {
 
 		wt.dt.routinePool.Submit(func() {
 			wt.dt.hf.DirFunc(wt.createTreeItem(entry))
-			wt.createSubWalkTarget(entry.Name(), wt.wg).walk()
+			wt.createSubWalkTarget(entry.Name()).walk()
 		})
 	}
 
@@ -77,14 +77,15 @@ func (wt *walkTarget) walk() {
 
 }
 
-func (wt *walkTarget) createSubWalkTarget(sub string, pwg *sync.WaitGroup) *walkTarget {
+func (wt *walkTarget) createSubWalkTarget(sub string) *walkTarget {
 
 	dirname := path.Join(wt.dirname, sub)
 	return &walkTarget{
 		dirname: dirname,
 		dt:      wt.dt,
 		wg:      &sync.WaitGroup{},
-		pwg:     pwg,
+		pwg:     wt.wg,
+		depth:   wt.depth + 1,
 	}
 
 }
