@@ -45,7 +45,7 @@ func TestTreeWithDefaultExclude(t *testing.T) {
 		FinishFunc: func() {
 			fmt.Printf("finish\n")
 		},
-	}, WithDefaultExclude())
+	}, WithDepth(2))
 
 	tree.Tree()
 }

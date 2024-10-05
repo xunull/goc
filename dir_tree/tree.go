@@ -44,6 +44,7 @@ func (dt *DTree) Tree() {
 	wt := walkTarget{
 		dirname: dt.Root,
 		dt:      dt,
+		depth:   1,
 		wg:      &sync.WaitGroup{},
 	}
 	var wg sync.WaitGroup
