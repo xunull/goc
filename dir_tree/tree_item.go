@@ -1,6 +1,9 @@
 package dir_tree
 
-import "io/fs"
+import (
+	"io/fs"
+	"path"
+)
 
 type (
 	TreeItem struct {
@@ -10,6 +13,10 @@ type (
 		Depth  int
 	}
 )
+
+func (t *TreeItem) Abs() string {
+	return path.Join(t.Parent, t.Name())
+}
 
 func (t *TreeItem) Name() string {
 	return t.Fs.Name()
