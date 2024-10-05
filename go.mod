@@ -1,8 +1,7 @@
 module github.com/xunull/goc
 
-go 1.21
+go 1.22
 
-toolchain go1.22.0
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
