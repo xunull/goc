@@ -22,8 +22,9 @@ type (
 
 func NewTree(root string, hf HandlerFunc, opts ...Option) *DTree {
 	dt := &DTree{
-		Root: root,
-		hf:   hf,
+		Root:   root,
+		hf:     hf,
+		option: getDefaultOption(),
 	}
 	dt.setOption(opts...)
 	dt.routinePool = routine_pool.NewPool(dt.option.WorkerCount)
@@ -36,13 +37,14 @@ func (dt *DTree) setOption(opts ...Option) {
 	}
 }
 
-func (dt *DTree) Exec() {
+func (dt *DTree) Tree() {
 
 	dt.routinePool.Start()
 
 	wt := walkTarget{
 		dirname: dt.Root,
 		dt:      dt,
+		wg:      &sync.WaitGroup{},
 	}
 	var wg sync.WaitGroup
 	wg.Add(1)

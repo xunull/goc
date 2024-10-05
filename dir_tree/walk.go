@@ -47,12 +47,11 @@ func (wt *walkTarget) walk() {
 		// handle file
 
 		wt.wg.Add(len(fileList))
-
+		// 1.22以上 才可以这样使用
 		for _, entry := range fileList {
 			wt.dt.routinePool.Submit(func() {
 				wt.handleFile(entry)
 			})
-
 		}
 	}
 
@@ -84,6 +83,7 @@ func (wt *walkTarget) createSubWalkTarget(sub string, pwg *sync.WaitGroup) *walk
 	return &walkTarget{
 		dirname: dirname,
 		dt:      wt.dt,
+		wg:      &sync.WaitGroup{},
 		pwg:     pwg,
 	}
 
