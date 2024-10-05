@@ -73,7 +73,7 @@ func (wt *walkTarget) walk() {
 		})
 	}
 
-	wt.wg.Wait()
+	defer wt.wg.Wait()
 
 }
 
