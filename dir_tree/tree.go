@@ -20,7 +20,7 @@ type (
 	}
 )
 
-func CreateTree(root string, hf HandlerFunc, opts ...Option) *DTree {
+func NewTree(root string, hf HandlerFunc, opts ...Option) *DTree {
 	dt := &DTree{
 		Root: root,
 		hf:   hf,
@@ -37,6 +37,9 @@ func (dt *DTree) setOption(opts ...Option) {
 }
 
 func (dt *DTree) Exec() {
+
+	dt.routinePool.Start()
+
 	wt := walkTarget{
 		dirname: dt.Root,
 		dt:      dt,
