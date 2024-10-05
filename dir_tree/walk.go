@@ -45,11 +45,15 @@ func (wt *walkTarget) walk() {
 
 	if !wt.dt.option.OnlyDir {
 		// handle file
-		go func() {
-			for _, entry := range fileList {
+
+		wt.wg.Add(len(fileList))
+
+		for _, entry := range fileList {
+			wt.dt.routinePool.Submit(func() {
 				wt.handleFile(entry)
-			}
-		}()
+			})
+
+		}
 	}
 
 	if len(dirList) == 0 {
@@ -63,8 +67,11 @@ func (wt *walkTarget) walk() {
 
 	wt.wg.Add(len(dirList))
 	for _, entry := range dirList {
-		wt.dt.hf.DirFunc(wt.createTreeItem(entry))
-		go wt.createSubWalkTarget(entry.Name(), wt.wg).walk()
+
+		wt.dt.routinePool.Submit(func() {
+			wt.dt.hf.DirFunc(wt.createTreeItem(entry))
+			wt.createSubWalkTarget(entry.Name(), wt.wg).walk()
+		})
 	}
 
 	wt.wg.Wait()
@@ -128,6 +135,9 @@ func (wt *walkTarget) createTreeItem(entry os.DirEntry) *TreeItem {
 }
 
 func (wt *walkTarget) handleFile(entry os.DirEntry) {
+
+	defer wt.wg.Done()
+
 	// only handle target ext file
 	if wt.dt.option.TargetExt != "" {
 		if path.Ext(entry.Name()) != wt.dt.option.TargetExt {
