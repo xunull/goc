@@ -10,12 +10,12 @@ import (
 )
 
 type MyHome struct {
-	Root         string
-	rootTruePath string
-	DbName       string
-	CacheName    string
-	LogName      string
-	AssetName    string
+	Root        string
+	rootAbsPath string
+	DbName      string
+	CacheName   string
+	LogName     string
+	AssetName   string
 }
 
 func NewMyHome(root string) *MyHome {
@@ -28,44 +28,44 @@ func NewMyHome(root string) *MyHome {
 	}
 	h, err := homedir.Expand(m.Root)
 	commonx.CheckErrOrFatal(err)
-	m.rootTruePath = h
+	m.rootAbsPath = h
 	return m
 }
 
+func (m *MyHome) GetTargetPath(target string) string {
+	return filepath.Join(m.rootAbsPath, target)
+}
+
 func (m *MyHome) GetDbHome() string {
-	return filepath.Join(m.rootTruePath, m.DbName)
+	return m.GetTargetPath(m.DbName)
 }
 
 func (m *MyHome) GetLogHome() string {
-	return filepath.Join(m.rootTruePath, m.LogName)
+	return m.GetTargetPath(m.LogName)
 }
 
 func (m *MyHome) GetAssetHome() string {
-	return filepath.Join(m.rootTruePath, m.AssetName)
+	return m.GetTargetPath(m.AssetName)
 }
 
 func (m *MyHome) makeHome() {
-	makeDir(m.rootTruePath)
+	makeDir(m.rootAbsPath)
 }
 
 func (m *MyHome) makeHomeDb() {
-	p := filepath.Join(m.rootTruePath, m.DbName)
-	makeDir(p)
+	makeDir(m.GetDbHome())
 }
 
 func (m *MyHome) makeHomeCache() {
-	p := filepath.Join(m.rootTruePath, m.CacheName)
-	makeDir(p)
+	makeDir(m.GetTargetPath(m.CacheName))
 }
 
 func (m *MyHome) makeLog() {
-	p := filepath.Join(m.rootTruePath, m.LogName)
-	makeDir(p)
+	makeDir(m.GetLogHome())
 }
 
 func (m *MyHome) makeAsset() {
-	p := filepath.Join(m.rootTruePath, m.AssetName)
-	makeDir(p)
+	makeDir(m.GetAssetHome())
 }
 
 func (m *MyHome) Init() {
