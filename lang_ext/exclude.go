@@ -27,6 +27,8 @@ var CommonExcludeFileExt = map[string]string{
 }
 
 var ExcludeLineCount = map[string]string{
+	".woff2": "woff2",
+	".woff":  "woff",
 	".mp4":   "MP4",
 	".png":   "Png",
 	".tif":   "TIF",
