@@ -31,6 +31,10 @@ func (r *CommandResult) OutputOrFatal() {
 	}
 }
 
+func (r *CommandResult) SimpleLog() string {
+	return fmt.Sprintf("code: %d\nstdout: %s\nstderr: %s\n", r.Status, r.Stdout.String(), r.Stderr.String())
+}
+
 // RunCommandForLast run commands and return last result
 func RunCommandForLast(commands [][]string, ops ...Option) (bool, *CommandResult) {
 	f := true
