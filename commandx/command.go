@@ -31,6 +31,7 @@ func (r *CommandResult) OutputOrFatal() {
 	}
 }
 
+// RunCommandForLast run commands and return last result
 func RunCommandForLast(commands [][]string, ops ...Option) (bool, *CommandResult) {
 	f := true
 	var res *CommandResult
@@ -44,6 +45,15 @@ func RunCommandForLast(commands [][]string, ops ...Option) (bool, *CommandResult
 		}
 	}
 	return f, res
+}
+
+func HasBash() bool {
+	_, err := exec.LookPath("bash")
+	return err == nil
+}
+
+func RunBashCommand(command string, ops ...Option) *CommandResult {
+	return RunCommand([]string{"bash", "-c", command}, ops...)
 }
 
 func RunCommand(command []string, ops ...Option) *CommandResult {
