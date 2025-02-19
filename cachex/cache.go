@@ -17,14 +17,22 @@ type Cache struct {
 	m          map[interface{}]*cacheItem
 	lock       sync.RWMutex
 	expiration time.Duration
+	ticker     *time.Ticker
 }
 
-func NewCache(expiration time.Duration) *Cache {
+func NewCache(expiration time.Duration, cleanupInterval time.Duration) *Cache {
 	cache := Cache{
 		m:          make(map[interface{}]*cacheItem),
 		expiration: expiration,
-		lock:       sync.RWMutex{},
+		ticker:     time.NewTicker(cleanupInterval),
 	}
+
+	go func() {
+		for range cache.ticker.C {
+			cache.cleanup()
+		}
+	}()
+
 	return &cache
 }
 
@@ -66,6 +74,7 @@ func (c *Cache) Get(key interface{}) interface{} {
 			return item.value
 		} else {
 			c.Set(key, nil)
+			// todo
 			if item.auto != nil {
 				v := item.auto()
 				c.Set(key, v)
@@ -85,4 +94,15 @@ func (c *Cache) Expire(key interface{}) {
 	defer c.lock.Unlock()
 	c.m[key] = nil
 	delete(c.m, key)
+}
+
+func (c *Cache) cleanup() {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+	now := time.Now()
+	for key, item := range c.m {
+		if item == nil || c.expiration <= now.Sub(item.addTime) && item.auto == nil {
+			delete(c.m, key)
+		}
+	}
 }
