@@ -69,6 +69,9 @@ func RunCommand(command []string, ops ...Option) *CommandResult {
 	if d.Timeout == 0 {
 		d.Timeout = time.Second * 20
 	}
+	if d.RedirectStderr {
+		command = append(command, "2>&1")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), d.Timeout)
 	defer cancel()
