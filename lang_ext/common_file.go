@@ -52,4 +52,6 @@ var CommonLanguageExt = map[string]string{
 	".cuh":   "Cuda Header",
 	".cu":    "Cuda Source",
 	".bat":   "bat",
+	".toml":  "Toml",
+	".jsonl": "Jsonl",
 }
