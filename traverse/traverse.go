@@ -1,33 +1,38 @@
 package traverse
 
 import (
-	"github.com/xunull/goc/commonx"
-	"github.com/xunull/goc/easy/routine_pool"
-	"github.com/xunull/goc/file_path"
-	"github.com/xunull/goc/file_utils"
-	"github.com/xunull/goc/lang_ext"
+	"context"
+	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/xunull/goc/easy/routine_pool"
+	"github.com/xunull/goc/file_path"
+	"github.com/xunull/goc/file_utils"
+	"github.com/xunull/goc/lang_ext"
 )
 
 type DirTraverse struct {
-	Path      string
-	wg        *sync.WaitGroup
-	errChan   chan error
-	Over      chan struct{}
-	WorkSheet *WorkSheet
-	option    *option
-	Fc        func(item *TraverseItem)
-
+	Path        string
+	wg          *sync.WaitGroup
+	errChan     chan error
+	Over        chan struct{}
+	WorkSheet   *WorkSheet
+	option      *option
+	ProcessFunc func(item *TraverseItem) // 重命名：Fc -> ProcessFunc
 	routinePool *routine_pool.RoutinePool
+	ctx         context.Context
+	cancel      context.CancelFunc
+	errors      []error
+	errorsMutex sync.Mutex
 }
 
 type TraverseItem struct {
-	Fs       fs.FileInfo
+	FileInfo fs.FileInfo // 重命名：Fs -> FileInfo
 	IsDir    bool
 	FilePath string
 	Path     string
@@ -36,30 +41,36 @@ type TraverseItem struct {
 	Depth    int
 }
 
-func NewDirTraverse(p string, fc func(item *TraverseItem), opts ...Option) *DirTraverse {
+func NewDirTraverse(p string, processFunc func(item *TraverseItem), opts ...Option) *DirTraverse {
+	ctx, cancel := context.WithCancel(context.Background())
 	d := &DirTraverse{
-		Path:      p,
-		wg:        &sync.WaitGroup{},
-		errChan:   make(chan error),
-		Over:      make(chan struct{}, 1),
-		WorkSheet: NewWorkSheet(),
-		option:    getDefaultOption(),
-		Fc:        fc,
+		Path:        p,
+		wg:          &sync.WaitGroup{},
+		errChan:     make(chan error, 100), // 添加缓冲区避免阻塞
+		Over:        make(chan struct{}, 1),
+		WorkSheet:   NewWorkSheet(),
+		option:      getDefaultOption(),
+		ProcessFunc: processFunc,
+		ctx:         ctx,
+		cancel:      cancel,
+		errors:      make([]error, 0),
 	}
 
 	d.setOption(opts...)
 
 	d.routinePool = routine_pool.NewPool(d.option.WorkerCount)
-
 	d.routinePool.Start()
 
 	return d
 }
 
 func (t *DirTraverse) processErr() {
-	errList := make([]error, 0)
 	for err := range t.errChan {
-		errList = append(errList, err)
+		if err != nil {
+			t.errorsMutex.Lock()
+			t.errors = append(t.errors, err)
+			t.errorsMutex.Unlock()
+		}
 	}
 }
 
@@ -74,14 +85,13 @@ func (t *DirTraverse) setOption(opts ...Option) {
 	}
 }
 
+// SetOption 设置遍历选项（公开方法）
 func (t *DirTraverse) SetOption(opts ...Option) {
-	for _, o := range opts {
-		o(t.option)
-	}
+	t.setOption(opts...)
 }
 
 func (t *DirTraverse) wrapCallback(item *TraverseItem) {
-	t.Fc(item)
+	t.ProcessFunc(item)
 	t.WorkSheet.ItemOver(item.Path)
 }
 
@@ -90,14 +100,39 @@ func (t *DirTraverse) wrapCallback(item *TraverseItem) {
 // main method
 func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int) {
 	defer t.wg.Done()
+
+	// 检查 context 是否已取消
+	select {
+	case <-t.ctx.Done():
+		return
+	default:
+	}
+
 	if t.option.Depth != 0 && depth > t.option.Depth {
 		return
 	}
 
-	files, err := ioutil.ReadDir(p)
+	entries, err := os.ReadDir(p)
 	if err != nil {
-		t.errChan <- err
+		select {
+		case t.errChan <- err:
+		default:
+			// channel 已满，记录到错误列表
+			t.errorsMutex.Lock()
+			t.errors = append(t.errors, err)
+			t.errorsMutex.Unlock()
+		}
 		return
+	}
+
+	// 转换 DirEntry 为 FileInfo
+	files := make([]fs.FileInfo, 0, len(entries))
+	for _, entry := range entries {
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		files = append(files, info)
 	}
 
 	for _, file := range files {
@@ -188,7 +223,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 		}
 
 		ti := &TraverseItem{
-			Fs:       file,
+			FileInfo: file,
 			FilePath: filepath.Join(p, file.Name()),
 			IsDir:    file.IsDir(),
 			Path:     path.Join(parentPath, file.Name()),
@@ -208,7 +243,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 	}
 }
 
-func (t *DirTraverse) Handle(opts ...Option) {
+func (t *DirTraverse) Handle(opts ...Option) error {
 	t.setOption(opts...)
 	defer close(t.errChan)
 
@@ -223,6 +258,14 @@ func (t *DirTraverse) Handle(opts ...Option) {
 
 	t.WorkSheet.TraverseOver()
 	t.Over <- struct{}{}
+
+	// 返回收集的错误
+	t.errorsMutex.Lock()
+	defer t.errorsMutex.Unlock()
+	if len(t.errors) > 0 {
+		return fmt.Errorf("traverse completed with %d errors: first error: %w", len(t.errors), t.errors[0])
+	}
+	return nil
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -231,8 +274,34 @@ func (t *DirTraverse) getChildrenPath(fp string, parentPath string, ch chan stri
 
 	defer t.wg.Done()
 
-	files, err := ioutil.ReadDir(fp)
-	commonx.CheckErrOrFatal(err)
+	// 检查 context 是否已取消
+	select {
+	case <-t.ctx.Done():
+		return
+	default:
+	}
+
+	entries, err := os.ReadDir(fp)
+	if err != nil {
+		select {
+		case t.errChan <- err:
+		default:
+			t.errorsMutex.Lock()
+			t.errors = append(t.errors, err)
+			t.errorsMutex.Unlock()
+		}
+		return
+	}
+
+	// 转换 DirEntry 为 FileInfo
+	files := make([]fs.FileInfo, 0, len(entries))
+	for _, entry := range entries {
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+		files = append(files, info)
+	}
 
 	for _, file := range files {
 		curFp := filepath.Join(fp, file.Name())
@@ -262,7 +331,7 @@ func (t *DirTraverse) getChildrenPath(fp string, parentPath string, ch chan stri
 	}
 }
 
-func (t *DirTraverse) GetAllPath(opts ...Option) []string {
+func (t *DirTraverse) GetAllPath(opts ...Option) ([]string, error) {
 	t.setOption(opts...)
 	defer close(t.errChan)
 	go t.processErr()
@@ -282,5 +351,50 @@ func (t *DirTraverse) GetAllPath(opts ...Option) []string {
 
 	close(all)
 	<-over
-	return res
+
+	t.errorsMutex.Lock()
+	defer t.errorsMutex.Unlock()
+	if len(t.errors) > 0 {
+		return res, fmt.Errorf("traverse completed with %d errors", len(t.errors))
+	}
+	return res, nil
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// 资源管理方法
+
+// Close 清理所有资源
+func (t *DirTraverse) Close() error {
+	if t.cancel != nil {
+		t.cancel()
+	}
+	if t.routinePool != nil {
+		// 假设 routine_pool 有 Stop 方法，如果没有需要添加
+		// t.routinePool.Stop()
+	}
+	return nil
+}
+
+// Cancel 取消遍历操作
+func (t *DirTraverse) Cancel() {
+	if t.cancel != nil {
+		t.cancel()
+	}
+}
+
+// Errors 返回遍历过程中收集的所有错误
+func (t *DirTraverse) Errors() []error {
+	t.errorsMutex.Lock()
+	defer t.errorsMutex.Unlock()
+	// 返回错误副本以避免并发修改
+	errorsCopy := make([]error, len(t.errors))
+	copy(errorsCopy, t.errors)
+	return errorsCopy
+}
+
+// HasErrors 检查是否有错误
+func (t *DirTraverse) HasErrors() bool {
+	t.errorsMutex.Lock()
+	defer t.errorsMutex.Unlock()
+	return len(t.errors) > 0
 }

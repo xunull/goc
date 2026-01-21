@@ -1,9 +1,12 @@
 package traverse
 
+import "sync"
+
 type FileListRes struct {
-	List []string
-	Map  map[string]struct{}
-	ch   chan string
+	List  []string
+	Map   map[string]struct{}
+	ch    chan string
+	mutex sync.Mutex // 添加 mutex 保护
 	*option
 	over chan struct{}
 }
@@ -19,20 +22,22 @@ func (s *FileListRes) callbackForGetFileList(item *TraverseItem) {
 
 func (s *FileListRes) processCh() {
 	for {
-
 		select {
 		case p, ok := <-s.ch:
 			if ok {
+				s.mutex.Lock()
 				s.List = append(s.List, p)
 				s.Map[p] = struct{}{}
+				s.mutex.Unlock()
 			} else {
 				s.over <- struct{}{}
+				return
 			}
 		}
 	}
 }
 
-func GetFileList(dir string, opts ...Option) *FileListRes {
+func GetFileList(dir string, opts ...Option) (*FileListRes, error) {
 	op := &option{}
 
 	for _, o := range opts {
@@ -50,9 +55,14 @@ func GetFileList(dir string, opts ...Option) *FileListRes {
 	go res.processCh()
 
 	t := NewDirTraverse(dir, res.callbackForGetFileList)
-	t.Handle(opts...)
+	err := t.Handle(opts...)
+	if err != nil {
+		close(res.ch)
+		<-res.over
+		return res, err
+	}
 	t.WorkSheet.Wait()
 	close(res.ch)
 	<-res.over
-	return res
+	return res, nil
 }

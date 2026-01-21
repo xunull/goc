@@ -1,9 +1,9 @@
 package traverse
 
 import (
-	"github.com/cheggaaa/pb/v3"
 	"sync"
-	"time"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 // the map[string]bool, "" item is self
@@ -32,15 +32,18 @@ type WorkSheet struct {
 	Count              int64
 	OverCount          int64
 	statChan           chan itemStat
+	cond               *sync.Cond // 使用条件变量替代 busy-wait
 }
 
 func NewWorkSheet() *WorkSheet {
+	mutex := &sync.Mutex{}
 	ws := &WorkSheet{
 		Sheet:    make(map[string]bool),
 		overChan: make(chan struct{}),
 		lock:     &sync.RWMutex{},
 		overLock: &sync.RWMutex{},
 		statChan: make(chan itemStat, 2048),
+		cond:     sync.NewCond(mutex),
 	}
 	go ws.runStatChanHandle()
 	return ws
@@ -62,6 +65,7 @@ func (w *WorkSheet) ItemOver(path string) {
 
 func (w *WorkSheet) runStatChanHandle() {
 	for stat := range w.statChan {
+		w.cond.L.Lock()
 		if stat.Stat == ItemAddStat {
 			w.Count += 1
 
@@ -73,6 +77,9 @@ func (w *WorkSheet) runStatChanHandle() {
 			w.OverCount += 1
 			w.Sheet[stat.Name] = true
 		}
+		// 通知等待的协程
+		w.cond.Broadcast()
+		w.cond.L.Unlock()
 	}
 }
 
@@ -82,18 +89,15 @@ func (w *WorkSheet) TraverseOver() {
 		return
 	}
 
-	// todo it's bad
+	// 使用条件变量替代 busy-wait
 	go func() {
-
-		for {
-			if w.Count == w.OverCount {
-				w.Over = true
-				w.overChan <- struct{}{}
-				return
-			} else {
-				time.Sleep(100 * time.Millisecond)
-			}
+		w.cond.L.Lock()
+		for w.Count != w.OverCount {
+			w.cond.Wait() // 等待信号，不消耗 CPU
 		}
+		w.Over = true
+		w.cond.L.Unlock()
+		w.overChan <- struct{}{}
 	}()
 }
 

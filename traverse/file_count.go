@@ -1,8 +1,9 @@
 package traverse
 
 import (
-	"github.com/xunull/goc/lang_ext"
 	"sync"
+
+	"github.com/xunull/goc/lang_ext"
 )
 
 type FileCountRes struct {
@@ -10,12 +11,12 @@ type FileCountRes struct {
 	TargetCount int
 	CountMap    map[string]int
 	*option
-	mux sync.Mutex
+	mutex sync.Mutex // 重命名：mux -> mutex
 }
 
 func (s *FileCountRes) callbackForGetFileCount(item *TraverseItem) {
-	s.mux.Lock()
-	defer s.mux.Unlock()
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	s.Count += 1
 	if _, ok := lang_ext.CommonLanguageExt[item.Ext]; ok {
 		if _, ok = s.CountMap[lang_ext.CommonLanguageExt[item.Ext]]; ok {
@@ -31,7 +32,7 @@ func (s *FileCountRes) callbackForGetFileCount(item *TraverseItem) {
 	}
 }
 
-func GetFileCount(dir string, opts ...Option) *FileCountRes {
+func GetFileCount(dir string, opts ...Option) (*FileCountRes, error) {
 	op := &option{}
 
 	for _, o := range opts {
@@ -44,7 +45,10 @@ func GetFileCount(dir string, opts ...Option) *FileCountRes {
 	res.option = op
 
 	t := NewDirTraverse(dir, res.callbackForGetFileCount)
-	t.Handle(opts...)
+	err := t.Handle(opts...)
+	if err != nil {
+		return res, err
+	}
 	t.WorkSheet.Wait()
-	return res
+	return res, nil
 }
