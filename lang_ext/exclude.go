@@ -14,16 +14,17 @@ var CommonExcludeDir = map[string]string{
 }
 
 var CommonExcludeFileExt = map[string]string{
-	".exe": "exe",
-	".pyc": "pyc",
-	".bin": "bin",
-	".dll": "dll",
-	".pdb": "pdb",
-	".pt":  "pt",
-	".log": "log",
-	".o":   "c/c++",
-	".so":  "c/c++",
-	".sum": "golang go.sum",
+	".exe":   "exe",
+	".pyc":   "pyc",
+	".bin":   "bin",
+	".dll":   "dll",
+	".pdb":   "pdb",
+	".pt":    "pt",
+	".log":   "log",
+	".o":     "c/c++",
+	".so":    "c/c++",
+	".dylib": "dylib",
+	".sum":   "golang go.sum",
 }
 
 var ExcludeLineCount = map[string]string{
