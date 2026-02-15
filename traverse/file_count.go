@@ -11,7 +11,7 @@ type FileCountRes struct {
 	TargetCount int
 	CountMap    map[string]int
 	*option
-	mutex sync.Mutex // 重命名：mux -> mutex
+	mutex sync.Mutex
 }
 
 func (s *FileCountRes) callbackForGetFileCount(item *TraverseItem) {
@@ -50,5 +50,6 @@ func GetFileCount(dir string, opts ...Option) (*FileCountRes, error) {
 		return res, err
 	}
 	t.WorkSheet.Wait()
-	return res, nil
+	err = t.Close()
+	return res, err
 }

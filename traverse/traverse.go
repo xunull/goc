@@ -85,7 +85,6 @@ func (t *DirTraverse) setOption(opts ...Option) {
 	}
 }
 
-// SetOption 设置遍历选项（公开方法）
 func (t *DirTraverse) SetOption(opts ...Option) {
 	t.setOption(opts...)
 }

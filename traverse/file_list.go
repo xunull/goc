@@ -6,7 +6,7 @@ type FileListRes struct {
 	List  []string
 	Map   map[string]struct{}
 	ch    chan string
-	mutex sync.Mutex // 添加 mutex 保护
+	mutex sync.Mutex
 	*option
 	over chan struct{}
 }
