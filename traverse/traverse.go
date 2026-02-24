@@ -367,8 +367,7 @@ func (t *DirTraverse) Close() error {
 		t.cancel()
 	}
 	if t.routinePool != nil {
-		// 假设 routine_pool 有 Stop 方法，如果没有需要添加
-		// t.routinePool.Stop()
+		t.routinePool.Release()
 	}
 	return nil
 }
