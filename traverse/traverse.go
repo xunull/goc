@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -153,7 +152,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 			}
 
 			if t.option.ExcludeDir != nil && len(t.option.ExcludeDir) > 0 {
-				p := path.Join(parentPath, file.Name())
+				p := filepath.Join(parentPath, file.Name())
 				if _, ok := t.option.excludeDirMap[file_path.RemovePrefixN(p, 1)]; ok {
 					continue
 				}
@@ -164,7 +163,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 			if t.option.SyncMode {
 				t.traverseDir(filepath.Join(p, file.Name()),
 					file.Name(),
-					path.Join(parentPath, file.Name()),
+					filepath.Join(parentPath, file.Name()),
 					depth+1)
 			} else {
 
@@ -172,7 +171,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 					t.routinePool.Submit(func() {
 						t.traverseDir(filepath.Join(p, file.Name()),
 							file.Name(),
-							path.Join(parentPath, file.Name()),
+							filepath.Join(parentPath, file.Name()),
 							depth+1)
 					})
 				}(p, parentPath, depth, file)
@@ -185,12 +184,12 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 				continue
 			}
 			if t.option.TargetExt != "" {
-				if path.Ext(file.Name()) != t.option.TargetExt {
+				if filepath.Ext(file.Name()) != t.option.TargetExt {
 					continue
 				}
 			}
 			if t.option.DefaultExclude {
-				if _, ok := lang_ext.CommonExcludeFileExt[path.Ext(file.Name())]; ok {
+				if _, ok := lang_ext.CommonExcludeFileExt[filepath.Ext(file.Name())]; ok {
 					continue
 				}
 			}
@@ -225,9 +224,9 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 			FileInfo: file,
 			FilePath: filepath.Join(p, file.Name()),
 			IsDir:    file.IsDir(),
-			Path:     path.Join(parentPath, file.Name()),
+			Path:     filepath.Join(parentPath, file.Name()),
 			Parent:   parent,
-			Ext:      path.Ext(file.Name()),
+			Ext:      filepath.Ext(file.Name()),
 			Depth:    depth + 1,
 		}
 
@@ -304,7 +303,7 @@ func (t *DirTraverse) getChildrenPath(fp string, parentPath string, ch chan stri
 
 	for _, file := range files {
 		curFp := filepath.Join(fp, file.Name())
-		curPp := path.Join(parentPath, file.Name())
+		curPp := filepath.Join(parentPath, file.Name())
 		if file.IsDir() {
 			if t.option.DefaultExclude || t.option.DotDirExclude {
 				if _, ok := lang_ext.CommonExcludeDir[file.Name()]; ok {
