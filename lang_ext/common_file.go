@@ -15,6 +15,8 @@ var CommonLanguageExt = map[string]string{
 	".cgi":          "cgi",
 	".cpp":          "C++",
 	".hpp":          "C++",
+	".rs":           "Rust",
+	".cjs":          "JavaScript",
 	".js":           "JavaScript",
 	".ts":           "TypeScript",
 	".tsx":          "TS React",
