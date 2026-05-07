@@ -23,6 +23,7 @@ var CommonLanguageExt = map[string]string{
 	".tsx":          "TS React",
 	".vue":          "Vue",
 	".json":         "Json",
+	".json5":        "Json",
 	".yaml":         "Yaml",
 	".yml":          "Yaml",
 	".ini":          "Ini",
