@@ -28,6 +28,7 @@ var CommonLanguageExt = map[string]string{
 	".yml":          "Yaml",
 	".ini":          "Ini",
 	".md":           "Markdown",
+	".mdx":          "Markdown",
 	".sh":           "Shell",
 	".htm":          "Html",
 	".html":         "Html",
