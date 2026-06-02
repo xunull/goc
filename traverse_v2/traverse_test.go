@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -287,6 +288,156 @@ func TestExcludeDir(t *testing.T) {
 	}
 	if got := n.Load(); got != 1 { // only "keep/f.txt"
 		t.Errorf("expected 1 file, got %d", got)
+	}
+}
+
+func TestGetAllPaths(t *testing.T) {
+	tmp := t.TempDir()
+	if err := os.Mkdir(filepath.Join(tmp, "sub"), 0755); err != nil {
+		t.Fatal(err)
+	}
+	for _, p := range []string{"a.txt", "b.txt", "sub/c.txt"} {
+		full := filepath.Join(tmp, filepath.FromSlash(p))
+		if err := os.WriteFile(full, nil, 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	paths, err := GetAllPaths(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sort.Strings(paths)
+	want := []string{"a.txt", "b.txt", "sub/c.txt"}
+	if len(paths) != len(want) {
+		t.Fatalf("got %d paths, want %d: %v", len(paths), len(want), paths)
+	}
+	for i, p := range want {
+		if paths[i] != p {
+			t.Errorf("paths[%d] = %q, want %q", i, paths[i], p)
+		}
+	}
+}
+
+func TestGetFileCount(t *testing.T) {
+	tmp := t.TempDir()
+	for _, name := range []string{"a.go", "b.go", "c.py", "d.txt", "no_ext_file"} {
+		if err := os.WriteFile(filepath.Join(tmp, name), nil, 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	stats, err := GetFileCount(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stats.Total != 5 {
+		t.Errorf("Total = %d, want 5", stats.Total)
+	}
+	if stats.ByLanguage["Golang"] != 2 {
+		t.Errorf("ByLanguage[Golang] = %d, want 2", stats.ByLanguage["Golang"])
+	}
+	if stats.ByLanguage["Python"] != 1 {
+		t.Errorf("ByLanguage[Python] = %d, want 1", stats.ByLanguage["Python"])
+	}
+	if stats.ByLanguage["Text"] != 1 {
+		t.Errorf("ByLanguage[Text] = %d, want 1", stats.ByLanguage["Text"])
+	}
+	// no_ext_file should be in Total but not in any language bucket.
+}
+
+func TestGetFileList(t *testing.T) {
+	tmp := t.TempDir()
+	for _, name := range []string{"a.go", "b.txt", "c.go"} {
+		if err := os.WriteFile(filepath.Join(tmp, name), nil, 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	res, err := GetFileList(tmp, WithTargetExt(".go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.List) != 2 {
+		t.Fatalf("List len = %d, want 2: %v", len(res.List), res.List)
+	}
+	if _, ok := res.Set["a.go"]; !ok {
+		t.Errorf("Set missing a.go")
+	}
+	if _, ok := res.Set["c.go"]; !ok {
+		t.Errorf("Set missing c.go")
+	}
+	if _, ok := res.Set["b.txt"]; ok {
+		t.Errorf("Set should not contain b.txt")
+	}
+}
+
+// TestGetFileList_NoTargetExt confirms v2 fixes the v1 bug where an empty
+// list was returned when WithTargetExt was not set.
+func TestGetFileList_NoTargetExt(t *testing.T) {
+	tmp := t.TempDir()
+	for _, name := range []string{"a", "b", "c"} {
+		if err := os.WriteFile(filepath.Join(tmp, name), nil, 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	res, err := GetFileList(tmp)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.List) != 3 {
+		t.Errorf("List len = %d, want 3 (v1 bug: returned 0)", len(res.List))
+	}
+}
+
+func TestV1AliasOptions(t *testing.T) {
+	// Verify the v1 compatibility aliases actually take effect by
+	// constructing options and checking they set the underlying fields.
+	o := defaultOption()
+	WithWorkerCount(7)(o)
+	if o.DirWorkers != 7 || o.FileWorkers != 7 {
+		t.Errorf("WithWorkerCount(7): DirWorkers=%d FileWorkers=%d", o.DirWorkers, o.FileWorkers)
+	}
+
+	o = defaultOption()
+	WithSyncMode()(o)
+	if o.DirWorkers != 1 {
+		t.Errorf("WithSyncMode: DirWorkers=%d, want 1", o.DirWorkers)
+	}
+
+	o = defaultOption()
+	WithSyncFileOpMode()(o)
+	if o.FileWorkers != 1 {
+		t.Errorf("WithSyncFileOpMode: FileWorkers=%d, want 1", o.FileWorkers)
+	}
+
+	o = defaultOption()
+	WithDepth(5)(o)
+	if o.MaxDepth != 5 {
+		t.Errorf("WithDepth(5): MaxDepth=%d, want 5", o.MaxDepth)
+	}
+
+	o = defaultOption()
+	WithDefaultExclude()(o)
+	if !o.SkipDotEntries || !o.SkipKnownIgnoreDirs || !o.SkipKnownBinaryFiles {
+		t.Errorf("WithDefaultExclude: skip flags not all true: %+v", o)
+	}
+}
+
+func TestGetAllPathsTargetExt(t *testing.T) {
+	tmp := t.TempDir()
+	for _, name := range []string{"a.go", "b.go", "c.txt", "d.md"} {
+		if err := os.WriteFile(filepath.Join(tmp, name), nil, 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	paths, err := GetAllPaths(tmp, WithTargetExt(".go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(paths) != 2 {
+		t.Fatalf("got %d, want 2: %v", len(paths), paths)
 	}
 }
 

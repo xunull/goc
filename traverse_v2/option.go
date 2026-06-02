@@ -43,6 +43,30 @@ func WithFileWorkers(n int) Option {
 	return func(o *option) { o.FileWorkers = n }
 }
 
+// WithWorkerCount sets both DirWorkers and FileWorkers to n. v1
+// compatibility shortcut; for separate tuning use WithDirWorkers and
+// WithFileWorkers.
+func WithWorkerCount(n int) Option {
+	return func(o *option) {
+		o.DirWorkers = n
+		o.FileWorkers = n
+	}
+}
+
+// WithSyncMode runs directory reads in a single worker. v1 compatibility
+// alias for WithDirWorkers(1). Note: due to v2's overflow-on-full submit,
+// this is "mostly single-threaded" — bursts may still spawn goroutines.
+func WithSyncMode() Option {
+	return func(o *option) { o.DirWorkers = 1 }
+}
+
+// WithSyncFileOpMode runs file callbacks in a single worker. v1
+// compatibility alias for WithFileWorkers(1). Useful when the user
+// callback is not goroutine-safe.
+func WithSyncFileOpMode() Option {
+	return func(o *option) { o.FileWorkers = 1 }
+}
+
 // WithQueueScale sets queue size = workers * scale for both pools. Default 16.
 func WithQueueScale(n int) Option {
 	return func(o *option) { o.QueueScale = n }
@@ -52,6 +76,9 @@ func WithQueueScale(n int) Option {
 func WithMaxDepth(depth int) Option {
 	return func(o *option) { o.MaxDepth = depth }
 }
+
+// WithDepth is a v1 compatibility alias for WithMaxDepth.
+func WithDepth(depth int) Option { return WithMaxDepth(depth) }
 
 // WithTargetExt filters to only files matching this extension (callback is
 // not invoked for other files). Pass with leading dot, e.g. ".go".
@@ -106,6 +133,9 @@ func WithSensibleDefaults() Option {
 		o.SkipKnownBinaryFiles = true
 	}
 }
+
+// WithDefaultExclude is a v1 compatibility alias for WithSensibleDefaults.
+func WithDefaultExclude() Option { return WithSensibleDefaults() }
 
 func WithOnlyDir() Option {
 	return func(o *option) { o.OnlyDir = true }
