@@ -97,7 +97,7 @@ func (s *MiniServer) Shutdown() {
 }
 
 func (s *MiniServer) QuitWatch() {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c,
 		syscall.SIGHUP,
 		syscall.SIGINT,

@@ -19,7 +19,7 @@ func CheckErrOrFatal(err error) {
 }
 
 func QuitWatch() {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c,
 		syscall.SIGHUP,
 		syscall.SIGINT,
@@ -30,7 +30,7 @@ func QuitWatch() {
 }
 
 func QuitListen() {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c,
 		syscall.SIGHUP,
 		syscall.SIGINT,
