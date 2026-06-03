@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/xunull/goc/compare/v0.1.0...v0.1.1) (2026-06-03)
+
+
+### Bug Fixes
+
+* **ci:** release-please tag 去掉 goc- 前缀，符合 Go module 规范 ([78df5c5](https://github.com/xunull/goc/commit/78df5c5eccb724c942dc6b3e7d5f5ac7c23a76ca))
+
 ## [0.1.0](https://github.com/xunull/goc/compare/goc-v0.0.13...goc-v0.1.0) (2026-06-03)
 
 
