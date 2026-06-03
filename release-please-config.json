@@ -1,5 +1,6 @@
 {
   "release-type": "go",
+  "include-component-in-tag": false,
   "packages": {
     ".": {
       "package-name": "goc"
