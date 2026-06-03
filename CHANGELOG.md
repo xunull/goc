@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0](https://github.com/xunull/goc/compare/goc-v0.0.13...goc-v0.1.0) (2026-06-03)
+## [0.1.0](https://github.com/xunull/goc/compare/v0.0.13...v0.1.0) (2026-06-03)
 
 
 ### Features
