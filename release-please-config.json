@@ -1,0 +1,8 @@
+{
+  "release-type": "go",
+  "packages": {
+    ".": {
+      "package-name": "goc"
+    }
+  }
+}
