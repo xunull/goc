@@ -140,7 +140,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 			continue
 		} else if file.IsDir() {
 			if t.option.DefaultExclude || t.option.DotDirExclude {
-				if _, ok := lang_ext.CommonExcludeDir[file.Name()]; ok {
+				if lang_ext.IsExcludeDir(file.Name()) {
 					continue
 				} else {
 					if t.option.DotDirExclude {
@@ -189,7 +189,7 @@ func (t *DirTraverse) traverseDir(p string, parent, parentPath string, depth int
 				}
 			}
 			if t.option.DefaultExclude {
-				if _, ok := lang_ext.CommonExcludeFileExt[filepath.Ext(file.Name())]; ok {
+				if lang_ext.IsExcludeFileExt(filepath.Ext(file.Name())) {
 					continue
 				}
 			}
@@ -306,7 +306,7 @@ func (t *DirTraverse) getChildrenPath(fp string, parentPath string, ch chan stri
 		curPp := filepath.Join(parentPath, file.Name())
 		if file.IsDir() {
 			if t.option.DefaultExclude || t.option.DotDirExclude {
-				if _, ok := lang_ext.CommonExcludeDir[file.Name()]; ok {
+				if lang_ext.IsExcludeDir(file.Name()) {
 					// pass
 				} else {
 					if t.option.DotDirExclude {

@@ -43,7 +43,7 @@ type FileCountResult struct {
 	// v1 which over-counted by including dirs in Count).
 	Total int
 
-	// File count grouped by language name, keyed via lang_ext.CommonLanguageExt.
+	// File count grouped by language name, resolved via lang_ext.LanguageOf.
 	// Files with unrecognized extensions are counted in Total but not here.
 	ByLanguage map[string]int
 }
@@ -60,7 +60,7 @@ func GetFileCount(dir string, opts ...Option) (*FileCountResult, error) {
 		}
 		mu.Lock()
 		res.Total++
-		if lang, ok := lang_ext.CommonLanguageExt[item.Ext]; ok {
+		if lang, ok := lang_ext.LanguageOf(item.Ext); ok {
 			res.ByLanguage[lang]++
 		}
 		mu.Unlock()

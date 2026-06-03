@@ -196,11 +196,9 @@ func (g *GitApi) GetGitDiffItem(str string, opts ...Option) *GitDiffItem {
 		}
 		return g.getDiffItemWithTargetExts(str, m)
 	} else if o.OnlyBackLanguage {
-		m := lang_ext.CommonBackLanguageExt
-		return g.getDiffItemWithTargetExts(str, m)
+		return g.getDiffItemWithTargetExts(str, lang_ext.BackLanguageExts())
 	} else if o.OnlyFrontLanguage {
-		m := lang_ext.CommonFrontLanguageExt
-		return g.getDiffItemWithTargetExts(str, m)
+		return g.getDiffItemWithTargetExts(str, lang_ext.FrontLanguageExts())
 	}
 
 	sl := strings.Split(str, ",")

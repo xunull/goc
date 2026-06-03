@@ -100,7 +100,7 @@ func (wt *walkTarget) filterDir(dirList []os.DirEntry) []os.DirEntry {
 
 	for _, entry := range dirList {
 		if wt.dt.option.DefaultExclude || wt.dt.option.DotDirExclude {
-			if _, ok := lang_ext.CommonExcludeDir[entry.Name()]; ok {
+			if lang_ext.IsExcludeDir(entry.Name()) {
 				continue
 			} else {
 				if wt.dt.option.DotDirExclude {
@@ -150,7 +150,7 @@ func (wt *walkTarget) handleFile(entry os.DirEntry) {
 		}
 	}
 	if wt.dt.option.DefaultExclude {
-		if _, ok := lang_ext.CommonExcludeFileExt[path.Ext(entry.Name())]; ok {
+		if lang_ext.IsExcludeFileExt(path.Ext(entry.Name())) {
 			return
 		}
 	}

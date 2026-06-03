@@ -113,14 +113,14 @@ func WithSkipDotEntries() Option {
 	return func(o *option) { o.SkipDotEntries = true }
 }
 
-// WithSkipKnownIgnoreDirs skips directories in lang_ext.CommonExcludeDir
+// WithSkipKnownIgnoreDirs skips directories matched by lang_ext.IsExcludeDir
 // (node_modules, vendor, dist, etc.).
 func WithSkipKnownIgnoreDirs() Option {
 	return func(o *option) { o.SkipKnownIgnoreDirs = true }
 }
 
-// WithSkipKnownBinaryFiles skips files whose extension is in
-// lang_ext.CommonExcludeFileExt (.exe, .so, .pyc, etc.).
+// WithSkipKnownBinaryFiles skips files whose extension matches
+// lang_ext.IsExcludeFileExt (.exe, .so, .pyc, etc.).
 func WithSkipKnownBinaryFiles() Option {
 	return func(o *option) { o.SkipKnownBinaryFiles = true }
 }

@@ -1,6 +1,6 @@
 package lang_ext
 
-var CommonLanguageExt = map[string]string{
+var commonLanguageExt = map[string]string{
 	".cfg":          "Config",
 	".go":           "Golang",
 	".java":         "Java",
@@ -53,9 +53,9 @@ var CommonLanguageExt = map[string]string{
 	".rc":           "Windows Resource File",
 	".bmp":          "Bitmap",
 	".tex":          "TeX",
-	".bst":          "Tex",
-	".sty":          "Tex",
-	".bib":          "Tex",
+	".bst":          "TeX",
+	".sty":          "TeX",
+	".bib":          "TeX",
 	".ps1":          "PowerShell",
 	".xsd":          "XSD",
 	".php":          "PHP",

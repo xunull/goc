@@ -1,11 +1,11 @@
 package lang_ext
 
-var CommonExcludeFileName = map[string]string{
+var commonExcludeFileName = map[string]string{
 	"package.json":      "package.json",
 	"package-lock.json": "package-lock.json",
 }
 
-var CommonExcludeDir = map[string]string{
+var commonExcludeDir = map[string]string{
 	"dist":              "dist",
 	"node_modules":      "node_modules",
 	"public":            "public",
@@ -13,7 +13,7 @@ var CommonExcludeDir = map[string]string{
 	"cmake-build-debug": "cmake-build=debug",
 }
 
-var CommonExcludeFileExt = map[string]string{
+var commonExcludeFileExt = map[string]string{
 	".exe":   "exe",
 	".pyc":   "pyc",
 	".bin":   "bin",
@@ -27,7 +27,7 @@ var CommonExcludeFileExt = map[string]string{
 	".sum":   "golang go.sum",
 }
 
-var ExcludeLineCount = map[string]string{
+var excludeLineCount = map[string]string{
 	".woff2": "woff2",
 	".woff":  "woff",
 	".mp4":   "MP4",

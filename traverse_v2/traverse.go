@@ -210,7 +210,7 @@ func (t *Traverse) shouldRecurseDir(name, parentRel string) bool {
 		return false
 	}
 	if t.opt.SkipKnownIgnoreDirs {
-		if _, ok := lang_ext.CommonExcludeDir[name]; ok {
+		if lang_ext.IsExcludeDir(name) {
 			return false
 		}
 	}
@@ -234,7 +234,7 @@ func (t *Traverse) shouldProcessFile(name, ext string) bool {
 		return false
 	}
 	if t.opt.SkipKnownBinaryFiles {
-		if _, ok := lang_ext.CommonExcludeFileExt[ext]; ok {
+		if lang_ext.IsExcludeFileExt(ext) {
 			return false
 		}
 	}

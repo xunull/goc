@@ -18,12 +18,8 @@ func (s *FileCountRes) callbackForGetFileCount(item *TraverseItem) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	s.Count += 1
-	if _, ok := lang_ext.CommonLanguageExt[item.Ext]; ok {
-		if _, ok = s.CountMap[lang_ext.CommonLanguageExt[item.Ext]]; ok {
-			s.CountMap[lang_ext.CommonLanguageExt[item.Ext]] += 1
-		} else {
-			s.CountMap[lang_ext.CommonLanguageExt[item.Ext]] = 1
-		}
+	if lang, ok := lang_ext.LanguageOf(item.Ext); ok {
+		s.CountMap[lang] += 1
 	}
 	if s.option.TargetExt != "" {
 		if item.Ext == s.option.TargetExt {
