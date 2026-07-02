@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0](https://github.com/xunull/goc/compare/v0.1.1...v0.2.0) (2026-07-02)
+
+
+### Features
+
+* **lang_ext:** add ExcludeLineCountOf value accessor ([5e74269](https://github.com/xunull/goc/commit/5e7426954f949e127f3ab9e951a7e672a5207c55))
+* **lang_ext:** add ExcludeLineCountOf value accessor ([b8cf7cb](https://github.com/xunull/goc/commit/b8cf7cbfd4b7dc5e18bd7514602977ff17a935b0))
+* **traverse_v2:** add WithShouldRecurse dynamic prune hook ([f884200](https://github.com/xunull/goc/commit/f884200fd05642742affdf065b643cacaba76483))
+* **traverse_v2:** add WithShouldRecurse dynamic prune hook ([c89452d](https://github.com/xunull/goc/commit/c89452db1c76b5b024c620f80d9f0dc6158cf634))
+
 ## [0.1.1](https://github.com/xunull/goc/compare/v0.1.0...v0.1.1) (2026-06-03)
 
 
