@@ -100,6 +100,15 @@ func TestIsSkipLineCountExt(t *testing.T) {
 	}
 }
 
+func TestExcludeLineCountOf(t *testing.T) {
+	if name, ok := ExcludeLineCountOf(".png"); !ok || name != "Png" {
+		t.Errorf(`ExcludeLineCountOf(".png") = (%q, %v), want ("Png", true)`, name, ok)
+	}
+	if _, ok := ExcludeLineCountOf(".go"); ok {
+		t.Errorf(`ExcludeLineCountOf(".go") should miss`)
+	}
+}
+
 func TestExtOfLanguage(t *testing.T) {
 	ext, ok := ExtOfLanguage("Golang")
 	if !ok || ext != ".go" {
