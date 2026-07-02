@@ -165,6 +165,15 @@ func (t *Traverse) traverseDir(n *dirNode) {
 			if !t.shouldRecurseDir(name, n.rel) {
 				continue
 			}
+			if t.opt.ShouldRecurse != nil && !t.opt.ShouldRecurse(&Item{
+				Path:  joinRel(n.rel, name),
+				Name:  name,
+				IsDir: true,
+				Depth: n.depth + 1,
+				Mode:  fs.ModeDir,
+			}) {
+				continue
+			}
 			n.addChild()
 			sub := &dirNode{
 				t:      t,
@@ -183,7 +192,6 @@ func (t *Traverse) traverseDir(n *dirNode) {
 			continue
 		}
 
-		n.addChild()
 		item := &Item{
 			Path:     joinRel(n.rel, name),
 			FullPath: filepath.Join(n.path, name),
@@ -193,6 +201,11 @@ func (t *Traverse) traverseDir(n *dirNode) {
 			IsDir:    false,
 			Depth:    n.depth + 1,
 		}
+		if t.opt.ShouldRecurse != nil && !t.opt.ShouldRecurse(item) {
+			continue
+		}
+
+		n.addChild()
 		parent := n
 		t.filePool.submit(func() {
 			if t.onItem != nil {

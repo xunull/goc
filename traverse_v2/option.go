@@ -25,6 +25,8 @@ type option struct {
 
 	OnDirComplete func(*Item)
 	OnComplete    func()
+
+	ShouldRecurse func(*Item) bool
 }
 
 func defaultOption() *option {
@@ -147,6 +149,20 @@ func WithOnlyDir() Option {
 // The root directory also fires this event last.
 func WithOnDirComplete(fn func(*Item)) Option {
 	return func(o *option) { o.OnDirComplete = fn }
+}
+
+// WithShouldRecurse registers a dynamic prune predicate consulted for every
+// directory (before descending) and every file (before processing). Returning
+// false skips that entry: for a directory, its entire subtree is pruned; for a
+// file, only that file is skipped. The predicate is ANDed with the static
+// excludes (SkipDotEntries, SkipKnownIgnoreDirs, ExcludeDir, TargetExt, etc.):
+// if either says skip, the entry is skipped. The Item passed carries the
+// rel Path, Name, IsDir and Depth so callers can decide by path (e.g. a
+// hierarchical .gitignore matcher). When no predicate is set, traversal
+// behaves exactly as before. The predicate runs on the concurrent traversal
+// goroutines, so it must be safe for concurrent calls.
+func WithShouldRecurse(fn func(*Item) bool) Option {
+	return func(o *option) { o.ShouldRecurse = fn }
 }
 
 // WithOnComplete registers a callback fired exactly once when the entire
