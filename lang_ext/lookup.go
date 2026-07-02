@@ -34,6 +34,13 @@ func IsSkipLineCountExt(ext string) bool {
 	return ok
 }
 
+// ExcludeLineCountOf 返回该扩展名在"跳过行数统计"清单中的分类展示名
+// （如 ".png"→"Png"、".mp4"→"MP4"），供调用方作为分桶标签使用。
+func ExcludeLineCountOf(ext string) (string, bool) {
+	v, ok := excludeLineCount[ext]
+	return v, ok
+}
+
 // ExtOfLanguage 用语言名（如 "Golang"）反查扩展名。
 func ExtOfLanguage(language string) (string, bool) {
 	v, ok := commonLanguageReverseExt[language]
